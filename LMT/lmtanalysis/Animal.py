@@ -8,7 +8,6 @@ from lmtanalysis.Detection import *
 #matplotlib fix for mac (uncomment if needed)
 #matplotlib.use('TkAgg' )
 
-
 import matplotlib.pyplot as plt
 from lmtanalysis.Chronometer import *
 import matplotlib as mpl
@@ -1563,3 +1562,18 @@ class AnimalPool():
                                     for event_name in all_event_names]
                                 , axis=0)
         return event_table.sort_values("time").reset_index(drop=True)
+
+    def getNightStartStop(self):
+        '''
+        returns the Start and Stop frames of Night in the database.
+        '''
+
+        query = "SELECT STARTFRAME, ENDFRAME FROM EVENT WHERE NAME = 'night'"
+
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+
+        StartStopframes = cursor.fetchall()
+        cursor.close()
+
+        return StartStopframes
