@@ -75,7 +75,7 @@ eventClassList = [
                 BuildEventGroup3MakeBreak,
                 BuildEventGroup4MakeBreak,
                 BuildEventStop,
-                BuildEventWaterPoint,
+                #BuildEventWaterPoint,
                 BuildEventApproachContact,
                 #BuildEventWallJump,
                 BuildEventSAP,
@@ -248,6 +248,10 @@ def process(file):
 
         raise FileProcessException()
 
+def flush(connection):
+    ''' flush event in database '''
+    deleteEventTimeLineInBase(connection, "night")
+
 def insertNightEventWithInputs(file):
     '''
     This function create night event
@@ -257,7 +261,7 @@ def insertNightEventWithInputs(file):
 
     print("--------------")
     print("Current file: ", file)
-    print("Flush")
+    print("Flush_Night")
     flush(connection)
 
     print("--------------")
