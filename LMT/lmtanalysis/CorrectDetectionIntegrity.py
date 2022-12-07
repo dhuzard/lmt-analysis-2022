@@ -27,23 +27,23 @@ from lmtanalysis.Measure import *
 from lmtanalysis.Chronometer import Chronometer
 from lmtanalysis.FileUtil import getFilesToProcess
 
-def loadDetectionMap( connection, animal, start=None, end=None ):
+def loadDetectionMap(connection, animal, start=None, end=None):
     
         chrono = Chronometer("Correct detection integrity: Load detection map")
-        print( "processing animal ID: {}".format( animal ))
+        print("processing animal ID: {}".format(animal))
 
         result = {}
         
         cursor = connection.cursor()
-        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format( animal )
+        query = "SELECT FRAMENUMBER FROM DETECTION WHERE ANIMALID={}".format(animal)
 
-        if ( start != None ):
-            query += " AND FRAMENUMBER>={}".format(start )
-        if ( end != None ):
-            query += " AND FRAMENUMBER<={}".format(end )
+        if (start != None):
+            query += " AND FRAMENUMBER>={}".format(start)
+        if (end != None):
+            query += " AND FRAMENUMBER<={}".format(end)
             
-        print( query )
-        cursor.execute( query )
+        print(query)
+        cursor.execute(query)
         
         rows = cursor.fetchall()
         cursor.close()    
@@ -52,12 +52,12 @@ def loadDetectionMap( connection, animal, start=None, end=None ):
             frameNumber = row[0]
             result[frameNumber] = True;
         
-        print ( " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
+        print(" detections loaded in {} seconds.".format(chrono.getTimeI()))
         
         return result
 
 
-def correct( connection, tmin=None, tmax=None ): 
+def correct(connection, tmin=None, tmax=None):
     
     pool = AnimalPool( )
     pool.loadAnimals( connection )
@@ -84,13 +84,13 @@ def correct( connection, tmin=None, tmax=None ):
     if there is not all detections expected, switch all to anonymous
     '''
     
-    validDetectionTimeLine = EventTimeLine( None, "IDs integrity ok" , None , None , None , None , loadEvent=False )
+    validDetectionTimeLine = EventTimeLine(None, "IDs integrity ok", None, None, None, None, loadEvent=False)
     validDetectionTimeLineDictionnary = {}
 
     detectionTimeLine = {}
 
     for idAnimal in pool.getAnimalDictionnary():
-        detectionTimeLine[idAnimal] = loadDetectionMap( connection, idAnimal, tmin, tmax )
+        detectionTimeLine[idAnimal] = loadDetectionMap(connection, idAnimal, tmin, tmax)
 
     for t in range(tmin, tmax +1):
         
@@ -128,8 +128,8 @@ def correct( connection, tmin=None, tmax=None ):
     
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
-    t = TaskLogger( connection )
-    t.addLog( "Correct detection integrity" , tmin=tmin, tmax=tmax )
+    t = TaskLogger(connection)
+    t.addLog("Correct detection integrity", tmin=tmin, tmax=tmax)
 
        
     print( "Rebuild event finished." )
