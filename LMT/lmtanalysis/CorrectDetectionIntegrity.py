@@ -79,6 +79,13 @@ def correct(connection, tmin=None, tmax=None):
         for maxFrame in maxFrames:
             tmax = maxFrame[0]
 
+    #Select the MAX ID of DETECTION
+    query = "SELECT MAX(ID) FROM DETECTION"
+    cursor.execute(query)
+    maxIDtemp = cursor.fetchall()
+    maxID = maxIDtemp[0][0]
+    print(maxID)
+
     '''
     get the number of expected animals
     if there is not all detections expected, switch all to anonymous
@@ -124,8 +131,8 @@ def correct(connection, tmin=None, tmax=None):
     validDetectionTimeLine.endRebuildEventTimeLine(connection )
 
     print(f" =>  THERE WERE {countCorrection} CORRECTIONS IN THE DATABASE")
-    print(f" This represents {countCorrection/tmax*100}% of Alteration of the database")
-    
+    print(f" This represents approximately {countCorrection/maxID*100}% of Alteration of the database")
+
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
     t = TaskLogger(connection)

@@ -198,7 +198,6 @@ def insertNightEvent( file ):
         currentNight.nextDay()
   
 
-
 if __name__ == '__main__':
     
     print("Code launched.")
