@@ -414,7 +414,7 @@ if __name__ == '__main__':
                     else:
                         print("THE NIGHTS WILL NOT BE BUILD !!!!")
 
-                    if confirmEvents == "Yes" or confirmEvents == 'Y' or confirmEvents == "yes":
+                    if buildEvents == "Yes" or buildEvents == 'Y' or buildEvents == "yes":
                         process(file)
 
                 except FileProcessException:
