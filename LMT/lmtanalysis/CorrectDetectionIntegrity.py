@@ -25,6 +25,7 @@ import numpy as np
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
 from lmtanalysis.Chronometer import Chronometer
+from lmtanalysis.FileUtil import getFilesToProcess
 
 def loadDetectionMap( connection, animal, start=None, end=None ):
     
@@ -61,7 +62,23 @@ def correct( connection, tmin=None, tmax=None ):
     pool = AnimalPool( )
     pool.loadAnimals( connection )
     #pool.loadDetection( start = tmin, end = tmax )
-    
+
+    cursor = connection.cursor()
+
+    if tmin is None:
+        query = "SELECT MIN(FRAMENUMBER) FROM FRAME"
+        cursor.execute(query)
+        minFrames = cursor.fetchall()
+        for minFrame in minFrames:
+            tmin = minFrame[0]
+
+    if tmax is None:
+        query = "SELECT MAX(FRAMENUMBER) FROM FRAME"
+        cursor.execute(query)
+        maxFrames = cursor.fetchall()
+        for maxFrame in maxFrames:
+            tmax = maxFrame[0]
+
     '''
     get the number of expected animals
     if there is not all detections expected, switch all to anonymous
@@ -71,38 +88,43 @@ def correct( connection, tmin=None, tmax=None ):
     validDetectionTimeLineDictionnary = {}
 
     detectionTimeLine = {}
+
     for idAnimal in pool.getAnimalDictionnary():
         detectionTimeLine[idAnimal] = loadDetectionMap( connection, idAnimal, tmin, tmax )
 
-    for t in range ( tmin , tmax +1 ):
+    for t in range(tmin, tmax +1):
         
         valid = True
         for idAnimal in detectionTimeLine.keys():
-            if not ( t in detectionTimeLine[idAnimal] ):
+            if not (t in detectionTimeLine[idAnimal]):
                 valid = False
-        if ( valid ):
+        if (valid):
             validDetectionTimeLineDictionnary[t] = True
     
     '''
     rebuild detection set
     '''
     
-    cursor = connection.cursor()
+    #cursor = connection.cursor()
+
+    countCorrection = 0
+
     for idAnimal in detectionTimeLine.keys():
-        
         for t in range ( tmin , tmax +1 ):
             if ( t in detectionTimeLine[idAnimal] ):
                 if not ( t in validDetectionTimeLineDictionnary ):
-            
                     query = "UPDATE `DETECTION` SET `ANIMALID`=NULL WHERE `FRAMENUMBER`='{}';".format( t )
-                    #print ( query )
                     cursor.execute( query )
+                    print ( f"{countCorrection}: {query}" )
+                    countCorrection += 1
     
     connection.commit()
     cursor.close()
     validDetectionTimeLine.reBuildWithDictionnary( validDetectionTimeLineDictionnary )
     validDetectionTimeLine.endRebuildEventTimeLine(connection )
-    
+
+    print(f" =>  THERE WERE {countCorrection} CORRECTIONS IN THE DATABASE")
+    print(f" This represents {countCorrection/tmax*100}% of Alteration of the database")
     
     # log process
     from lmtanalysis.TaskLogger import TaskLogger
@@ -111,5 +133,20 @@ def correct( connection, tmin=None, tmax=None ):
 
        
     print( "Rebuild event finished." )
-        
-    
+
+
+if __name__ == '__main__':
+    files = getFilesToProcess()
+
+    for file in files:
+        print("Processing file", file)
+        connection = sqlite3.connect(file)  # connect to database
+        animalPool = AnimalPool()  # create an animalPool, which basically contains your animals
+        animalPool.loadAnimals(connection)  # load infos about the animals
+
+        correct(connection)
+
+        connection.close()
+
+    print("******* ALL JOBS DONE !!! *******")
+

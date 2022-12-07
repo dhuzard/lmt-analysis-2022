@@ -23,7 +23,12 @@ from lmtanalysis.FileUtil import getFilesToProcess
 if __name__ == '__main__':
     '''This script allows to have an overview of the quality of the tracking for the whole experiment.'''
     
-    behaviouralEvents = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", "Side by side Contact, opposite way", "Social approach", "Social escape", "Approach contact", "Approach rear", "Break contact", "Get away", "FollowZone Isolated", "Train2", "Group2", "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make", "Huddling", "Move isolated", "Move in contact", "Nest3", "Nest4", "Rearing", "Rear isolated", "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "USV seq"]
+    behaviouralEvents = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact",
+                         "Side by side Contact, opposite way", "Social approach", "Social escape", "Approach contact",
+                         "Approach rear", "Break contact", "Get away", "FollowZone Isolated", "Train2", "Group2",
+                         "Group3", "Group 3 break", "Group 3 make", "Group4", "Group 4 break", "Group 4 make",
+                         "Huddling", "Move isolated", "Move in contact", "Nest3", "Nest4", "Rearing", "Rear isolated",
+                         "Rear in contact", "Stop isolated", "WallJump", "Water Zone", "USV seq"]
     
     files = getFilesToProcess()
     
@@ -60,6 +65,7 @@ if __name__ == '__main__':
         #return realEndTime
         print( "Time of experiment end: {}".format(realEndTime) )
         text_file.write( "Time of experiment end: {}\n".format(realEndTime) )
+
         #Total duration of experiment based on timestamp
         realDurationInSeconds = realEndInSeconds - realStartInSeconds + 1
         print( "Real duration of experiment: {} s ({} frames)".format( realDurationInSeconds, realDurationInSeconds*30 ) )
@@ -113,6 +119,7 @@ if __name__ == '__main__':
             print ( "Animal {}: {} missed detections over {} frames recorded ({} %)".format( pool.animalDictionnary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
             text_file.write( "Animal {}: {} missed detections over {} frames recorded ({} %)\n".format( pool.animalDictionnary[animal].RFID, nbFramesRecorded-nbOfDetections, nbFramesRecorded, missedDetection*100 ) )
             '''Note: The score can be low, if the animals are often huddled in the nest and not identified individually.'''
+            print("Note: The score can be low, if the animals are often huddled in the nest and not identified individually.")
         
         ##########################################################################
         '''Number of RFID match'''

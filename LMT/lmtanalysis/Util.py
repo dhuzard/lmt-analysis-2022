@@ -135,7 +135,7 @@ def getMinTMaxTInput():
 
 def getFileNameInput():
 
-    text_file_name = input("File name : ")
+    text_file_name = input("Please enter the 'File name' to be saved: ")
     text_file_name = text_file_name+".txt"
     text_file = open ( text_file_name, "w")
 
