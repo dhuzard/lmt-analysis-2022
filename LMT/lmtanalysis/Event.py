@@ -850,16 +850,15 @@ class EventTimeLine:
 
     def endRebuildEventTimeLine( self, connection , deleteExistingEvent = False ):
         '''
-        delete the old event timeline and save the new calculated one in the lmtanalysis
+        Delete the old event timeline and save the new calculated one in the lmtanalysis
         '''
+
         if (len( self.eventList) == 0):
             print("no event")
         else:
             print ( "Number of event: " , len( self.eventList ) )
             print ( "Mean length of event: " , self.getMeanEventLength() )
             print ( "first event frame: " , self.eventList[0].startFrame )
-
-
 
         if deleteExistingEvent:
             print ( "Delete old entry in base: " + self.eventName )
@@ -990,6 +989,7 @@ def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=No
     '''
     delete an event in dataBase
     '''
+
     cursor = connection.cursor()
     print ( "Deleting event {} (idA:{},idB:{},idC:{},idD:{}) from base...".format( eventName , idA, idB, idC, idD ) )
     query = "DELETE FROM EVENT WHERE NAME=\"{0}\"".format( eventName )
@@ -1009,7 +1009,7 @@ def deleteEventTimeLineInBase( connection, eventName, idA=None, idB=None, idC=No
 
     cursor.execute( query )
     connection.commit()
-    print ( "Number of event deleted: {} ".format ( cursor.rowcount ) )
+    print( "Number of event deleted: {} ".format ( cursor.rowcount ) )
 
 def plotMultipleTimeLine( timeLineList , colorList=None , show=True , minValue=0 ):
     '''

@@ -50,41 +50,42 @@ USE_CACHE_LOAD_DETECTION_CACHE = True
 class FileProcessException(Exception):
     pass
 
-eventClassList = [
-                #BuildEventHuddling,
-                BuildEventDetection,
-                BuildEventOralOralContact,
-                BuildEventOralGenitalContact,
-                BuildEventSideBySide,
-                BuildEventSideBySideOpposite,
-                BuildEventTrain2,
-                BuildEventTrain3,
-                BuildEventTrain4,
-                BuildEventMove,
-                BuildEventFollowZone,
-                BuildEventRear5,
-                BuildEventCenterPeripheryLocation,
-                BuildEventRearCenterPeriphery,
-                BuildEventSocialApproach,
-                BuildEventGetAway,
-                BuildEventSocialEscape,
-                BuildEventApproachRear,
-                BuildEventGroup2,
-                BuildEventGroup3,
-                BuildEventGroup4,
-                BuildEventGroup3MakeBreak,
-                BuildEventGroup4MakeBreak,
-                BuildEventStop,
-                #BuildEventWaterPoint,
-                BuildEventApproachContact,
-                #BuildEventWallJump,
-                BuildEventSAP,
-                BuildEventOralSideSequence,
-                BuildEventNest3,
-                BuildEventNest4
-                   ]
+# eventClassList = [
+#                 #BuildEventHuddling,
+#                 BuildEventDetection,
+#                 BuildEventOralOralContact,
+#                 BuildEventOralGenitalContact,
+#                 BuildEventSideBySide,
+#                 BuildEventSideBySideOpposite,
+#                 BuildEventTrain2,
+#                 BuildEventTrain3,
+#                 BuildEventTrain4,
+#                 BuildEventMove,
+#                 BuildEventFollowZone,
+#                 BuildEventRear5,
+#                 BuildEventCenterPeripheryLocation,
+#                 BuildEventRearCenterPeriphery,
+#                 BuildEventSocialApproach,
+#                 BuildEventGetAway,
+#                 BuildEventSocialEscape,
+#                 BuildEventApproachRear,
+#                 BuildEventGroup2,
+#                 BuildEventGroup3,
+#                 BuildEventGroup4,
+#                 BuildEventGroup3MakeBreak,
+#                 BuildEventGroup4MakeBreak,
+#                 BuildEventStop,
+#                 #BuildEventWaterPoint,
+#                 BuildEventApproachContact,
+#                 #BuildEventWallJump,
+#                 BuildEventSAP,
+#                 BuildEventOralSideSequence,
+#                 BuildEventNest3,
+#                 BuildEventNest4
+#                    ]
 
-#eventClassList = [BuildEventStop, BuildEventMove]
+eventClassList = [BuildEventStop]
+
 #eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
 #eventClassList = [BuildEventApproachContact2]
 
@@ -102,17 +103,10 @@ eventClassList = [
                    ]'''
 
 
-
-def flushEvents(connection):
-
-    print("Flushing events...")
-
-    for ev in eventClassList:
-
-        chrono = Chronometer("Flushing event " + str(ev))
-        ev.flush(connection);
-        chrono.printTimeInS()
-
+def flushNightEvents(connection):
+    ''' flush 'NIGHT' event in database '''
+    print("delete night in DBs ?")
+    deleteEventTimeLineInBase(connection, "night")
 
 def processTimeWindow(connection, file, currentMinT , currentMaxT):
 
@@ -135,15 +129,15 @@ def processTimeWindow(connection, file, currentMinT , currentMaxT):
         print("Caching load of animal detection done.")
 
     for ev in eventClassList:
-
         chrono = Chronometer(str(ev))
         ev.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool)
         chrono.printTimeInS()
 
 
-
 def process(file):
 
+    print("\n***************************************************************************")
+    print("Start Process of Events")
     print(file)
 
     mem = virtual_memory()
@@ -153,7 +147,6 @@ def process(file):
     if availableMemoryGB < 10:
         print( "Not enough memory to use cache load of events.")
         disableEventTimeLineCache()
-
 
     chronoFullFile = Chronometer("File " + file)
 
@@ -180,7 +173,7 @@ def process(file):
 
     try:
 
-        flushEvents(connection)
+        # flushNightEvents(connection)
 
         while currentT < maxT:
 
@@ -195,11 +188,8 @@ def process(file):
 
             currentT += windowT
 
-
-
         print("Full file process time: ")
         chronoFullFile.printTimeInS()
-
 
         TEST_WINDOWING_COMPUTATION = False
 
@@ -248,41 +238,54 @@ def process(file):
 
         raise FileProcessException()
 
-def flush(connection):
-    ''' flush event in database '''
-    deleteEventTimeLineInBase(connection, "night")
-
 def insertNightEventWithInputs(file):
     '''
     This function create night event
     '''
 
+    print("Global variables:")
+    print(startNightInput, endNightInput)
+
     connection = sqlite3.connect(file)
 
     print("--------------")
     print("Current file: ", file)
-    print("Flush_Night")
-    flush(connection)
 
     print("--------------")
-    print("Loading existing events...")
+    print("Loading existing Night events...")
     nightTimeLine = EventTimeLine(connection, "night", None, None, None, None)
 
+    print("\n")
+    print("The Night Event list is:")
     print("--------------")
-    print("Event list:")
     for event in nightTimeLine.eventList:
         print(event)
     print("--------------")
 
+    print("\n")
+    print("Flushing the night events...")
+    flushNightEvents(connection)
+
+    nightTimeLineFlushed = EventTimeLine(connection, "night", None, None, None, None)
+
+    print("The Night Event list, After Flushing:")
+    print("--------------")
+    for event in nightTimeLineFlushed.eventList:
+        print(event)
+    print("--------------")
+
+    print("\n")
     try:
         startNight = datetime.time(int(startNightInput.split(":")[0]), int(startNightInput.split(":")[1]),
-                                    int(startNightInput.split(":")[2]))
+                                   int(startNightInput.split(":")[2]))
+        print(startNight)
     except ValueError:
         raise ValueError("Incorrect time format, should be hh:mm:ss")
 
     try:
         endNight = datetime.time(int(endNightInput.split(":")[0]), int(endNightInput.split(":")[1]),
-                                    int(endNightInput.split(":")[2]))
+                                 int(endNightInput.split(":")[2]))
+        print(endNight)
     except ValueError:
         raise ValueError("Incorrect time format, should be hh:mm:ss")
 
@@ -291,23 +294,36 @@ def insertNightEventWithInputs(file):
     - end night hour < start night hour means end night hour is the day after
     - end night hour > start night hour means the night is during the day: reverse cycle
     """
-    if (endNight<startNight):
+
+    print("**** Test End/start times****")
+    if ( endNight<startNight):
         cycle = "normal"
+        print("The cycle is ", cycle)
     else:
         cycle = "reverse"
+        print("The cycle is ", cycle)
 
+    print("\n")
     currentNight = Night(startHour=startNight, endHour=endNight, cycle=cycle)
 
     '''Beginning and end of the experiment'''
     startExperimentDate = getStartInDatetime(file)
+    print(f"start Xp date: {startExperimentDate}")
+
     endExperimentDate = getEndInDatetime(file)
+    print(f"End Xp date: {endExperimentDate}")
 
     currentDay = datetime.datetime.strftime(startExperimentDate, "%Y-%m-%d")
     currentDay = datetime.datetime(int(currentDay.split("-")[0]), int(currentDay.split("-")[1]),
                                    int(currentDay.split("-")[2]))
     previousDay = currentDay - datetime.timedelta(days=1)
     previousDay = datetime.datetime.strftime(previousDay, "%Y-%m-%d")
+
+    print(f"currentDay : {currentDay}")
+    print(f"previousDay : {previousDay}")
+
     currentStartNightDate = datetime.datetime.strptime("%s %s" % (previousDay, startNight), "%Y-%m-%d %H:%M:%S")
+    print(f"currentStartNightDate : {currentStartNightDate}")
 
     lastFrame = getNumberOfFrames(file)
 
@@ -324,8 +340,10 @@ def insertNightEventWithInputs(file):
             if ((currentNight.startDate < startExperimentDate) & (currentNight.endDate > endExperimentDate)):
                 tmpStartFrame = 1
                 tmpEndFrame = lastFrame
-                nightTimeLine.addEvent(Event(tmpStartFrame, tmpEndFrame))
-                nightTimeLine.endRebuildEventTimeLine(connection)
+                nightTimeLineFlushed.addEvent(Event(tmpStartFrame, tmpEndFrame))
+                nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent = True)
+                print("** nightTimeLineFlushed is now:")
+                print(nightTimeLineFlushed)
             else:
                 '''night outside the experiment'''
                 pass
@@ -336,53 +354,66 @@ def insertNightEventWithInputs(file):
             if (tmpEndFrame == 0):
                 tmpEndFrame = lastFrame
 
-            nightTimeLine.addEvent(Event(tmpStartFrame, tmpEndFrame))
-            nightTimeLine.endRebuildEventTimeLine(connection)
+            nightTimeLineFlushed.addEvent(Event(tmpStartFrame, tmpEndFrame))
+            nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent = True)
+            print("*** nightTimeLineFlushed is now:")
+            print(nightTimeLineFlushed)
 
         '''next day'''
+        print("\n")
+        print("Going to the next day: ")
         currentNight.nextDay()
 
 
-def processAll():
+if __name__ == '__main__':
+    print("Code launched.")
 
     files = getFilesToProcess()
 
     chronoFullBatch = Chronometer("Full batch")
 
-    j = 0
+    fileCount = 0 # File Counter
 
     if (files != None):
-            for file in files:
-                if j == 0:
-                    try:
-                        global startNightInput
-                        global endNightInput
-                        night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
-                        startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
-                        endNightInput = input("Time of the end of the night (hh:mm:ss):")
-                        j += 1
-                        if (night != "N"):
-                            print("Processing file", file)
-                            insertNightEventWithInputs(file)
-                        process(file)
-                    except FileProcessException:
-                        print("STOP PROCESSING FILE " + file, file=sys.stderr)
-                else:
-                    try:
-                        print("Processing file", file)
+        for file in files:
+            if fileCount == 0: # First file
+                try:
+                    # global startNightInput
+                    # global endNightInput
+                    night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
+                    startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
+                    endNightInput = input("Time of the end of the night (hh:mm:ss):")
+                    fileCount += 1 # Increment file Counter
+
+                    print("\n")
+                    print("In addition to the night events, this script will also Rebuild the database for those events:")
+                    for i in eventClassList:
+                        print(i)
+
+                    confirm = input("Do you confirm ? ")
+
+                    if (night == "Y") or (night == "Yes"): # User replied Yes to rebuild the Nights
+                        print("Processing file, Rebuilding the  nights...", file)
                         insertNightEventWithInputs(file)
+                    else:
+                        print("THE NIGHTS WILL NOT BE BUILD !!!!")
+
+                    if confirm == "Yes" or confirm == 'Y' or confirm == "yes":
                         process(file)
-                    except FileProcessException:
-                        print("STOP PROCESSING FILE " + file, file=sys.stderr)
+
+                except FileProcessException:
+                    print("STOP PROCESSING FILE " + file, file=sys.stderr)
+
+            else: #For other files than the first one
+                try:
+                    print("Processing file", file)
+                    insertNightEventWithInputs(file)
+                    process(file)
+                except FileProcessException:
+                    print("STOP PROCESSING FILE " + file, file=sys.stderr)
 
     chronoFullBatch.printTimeInS()
-    print( "*** ALL JOBS DONE ***")
 
-
-if __name__ == '__main__':
-
-    print("Code launched.")
-    processAll()
-    print('Job done.')
+    print("*** ALL JOBS DONE ***")
 
 
