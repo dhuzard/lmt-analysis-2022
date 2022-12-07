@@ -17,8 +17,15 @@ from lmtanalysis.Measure import *
 from lmtanalysis.Util import getAllEvents
 
 from lmtanalysis.BuildEventNight import *
-from lmtanalysis import BuildEventApproachContact, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, BuildEventSocialEscape, BuildEventApproachContact,BuildEventOralOralContact, BuildEventApproachRear, BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventGetAway
-
+from lmtanalysis import BuildEventApproachContact, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, \
+    BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, \
+    BuildEventCenterPeripheryLocation, BuildEventRearCenterPeriphery, BuildEventFloorSniffing, BuildEventSocialApproach, \
+    BuildEventSocialEscape, BuildEventApproachContact, BuildEventOralOralContact, BuildEventApproachRear, \
+    BuildEventGroup2, BuildEventGroup3, BuildEventGroup4, BuildEventOralGenitalContact, BuildEventStop, \
+    BuildEventWaterPoint, BuildEventMove, BuildEventGroup3MakeBreak, BuildEventGroup4MakeBreak, BuildEventSideBySide, \
+    BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, \
+    BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, \
+    BuildEventGetAway
 
 from psutil import virtual_memory
 
@@ -28,7 +35,7 @@ import os
 import sys
 import traceback
 from lmtanalysis.FileUtil import getFilesToProcess
-from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
+from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache, \
     disableEventTimeLineCache, EventTimeLineCached
 
 global startNightInput
@@ -37,18 +44,20 @@ global endNightInput
 ''' minT and maxT to process the analysis (in frame) '''
 minT = 0
 
-#maxT = 5000
-maxT = 11*oneHour
-#maxT = (6+1)*oneHour
+# maxT = 5000
+maxT = 11 * oneHour
+# maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
-windowT = 1*oneDay
-#windowT = 3*oneDay #int (0.5*oneDay)
+windowT = 1 * oneDay
+# windowT = 3*oneDay #int (0.5*oneDay)
 
 
 USE_CACHE_LOAD_DETECTION_CACHE = True
 
+
 class FileProcessException(Exception):
     pass
+
 
 # eventClassList = [
 #                 #BuildEventHuddling,
@@ -86,8 +95,8 @@ class FileProcessException(Exception):
 
 eventClassList = [BuildEventStop]
 
-#eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
-#eventClassList = [BuildEventApproachContact2]
+# eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
+# eventClassList = [BuildEventApproachContact2]
 
 '''eventClassList = [
 
@@ -108,8 +117,8 @@ def flushNightEvents(connection):
     print("delete night in DBs ?")
     deleteEventTimeLineInBase(connection, "night")
 
-def processTimeWindow(connection, file, currentMinT , currentMaxT):
 
+def processTimeWindow(connection, file, currentMinT, currentMaxT):
     CheckWrongAnimal.check(connection, tmin=currentMinT, tmax=currentMaxT)
 
     # Warning: enabling this process (CorrectDetectionIntegrity) will alter the database permanently
@@ -125,17 +134,16 @@ def processTimeWindow(connection, file, currentMinT , currentMaxT):
         print("Caching load of animal detection...")
         animalPool = AnimalPool()
         animalPool.loadAnimals(connection)
-        animalPool.loadDetection(start = currentMinT, end = currentMaxT)
+        animalPool.loadDetection(start=currentMinT, end=currentMaxT)
         print("Caching load of animal detection done.")
 
     for ev in eventClassList:
         chrono = Chronometer(str(ev))
-        ev.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT, pool = animalPool)
+        ev.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT, pool=animalPool)
         chrono.printTimeInS()
 
 
 def process(file):
-
     print("\n***************************************************************************")
     print("Start Process of Events")
     print(file)
@@ -145,7 +153,7 @@ def process(file):
     print("Total memory on computer: (GB)", availableMemoryGB)
 
     if availableMemoryGB < 10:
-        print( "Not enough memory to use cache load of events.")
+        print("Not enough memory to use cache load of events.")
         disableEventTimeLineCache()
 
     chronoFullFile = Chronometer("File " + file)
@@ -161,13 +169,13 @@ def process(file):
         connection.commit()
 
     except:
-        print("METADATA field already exists" , file)
+        print("METADATA field already exists", file)
 
     BuildDataBaseIndex.buildDataBaseIndex(connection, force=False)
     # build sensor data
     animalPool = AnimalPool()
     animalPool.loadAnimals(connection)
-    #animalPool.buildSensorData(file)
+    # animalPool.buildSensorData(file)
 
     currentT = minT
 
@@ -178,11 +186,12 @@ def process(file):
         while currentT < maxT:
 
             currentMinT = currentT
-            currentMaxT = currentT+ windowT
+            currentMaxT = currentT + windowT
             if (currentMaxT > maxT):
                 currentMaxT = maxT
 
-            chronoTimeWindowFile = Chronometer("File "+ file+ " currentMinT: "+ str(currentMinT)+ " currentMaxT: " + str(currentMaxT));
+            chronoTimeWindowFile = Chronometer(
+                "File " + file + " currentMinT: " + str(currentMinT) + " currentMaxT: " + str(currentMaxT));
             processTimeWindow(connection, file, currentMinT, currentMaxT)
             chronoTimeWindowFile.printTimeInS()
 
@@ -204,21 +213,22 @@ def process(file):
             eventTimeLineList = []
 
             eventList = getAllEvents(connection)
-            file = open("outEvent"+str(windowT)+".txt","w")
+            file = open("outEvent" + str(windowT) + ".txt", "w")
             file.write("Event name\nnb event\ntotal duration")
 
             for eventName in eventList:
-                for animal in range(0,5):
-                        idA = animal
-                        if idA == 0:
-                            idA = None
-                        timeLine = EventTimeLineCached(connection, file, eventName, idA,  minFrame=minT, maxFrame=maxT)
-                        eventTimeLineList.append(timeLine)
-                        file.write(timeLine.eventNameWithId+"\t"+str(len(timeLine.eventList))+"\t"+str(timeLine.getTotalLength())+"\n")
+                for animal in range(0, 5):
+                    idA = animal
+                    if idA == 0:
+                        idA = None
+                    timeLine = EventTimeLineCached(connection, file, eventName, idA, minFrame=minT, maxFrame=maxT)
+                    eventTimeLineList.append(timeLine)
+                    file.write(timeLine.eventNameWithId + "\t" + str(len(timeLine.eventList)) + "\t" + str(
+                        timeLine.getTotalLength()) + "\n")
 
             file.close()
 
-            #plotMultipleTimeLine(eventTimeLineList)
+            # plotMultipleTimeLine(eventTimeLineList)
 
             print("************* END TEST")
 
@@ -237,6 +247,7 @@ def process(file):
         print(error, file=sys.stderr)
 
         raise FileProcessException()
+
 
 def insertNightEventWithInputs(file):
     '''
@@ -296,7 +307,7 @@ def insertNightEventWithInputs(file):
     """
 
     print("**** Test End/start times****")
-    if ( endNight<startNight):
+    if (endNight < startNight):
         cycle = "normal"
         print("The cycle is ", cycle)
     else:
@@ -341,7 +352,7 @@ def insertNightEventWithInputs(file):
                 tmpStartFrame = 1
                 tmpEndFrame = lastFrame
                 nightTimeLineFlushed.addEvent(Event(tmpStartFrame, tmpEndFrame))
-                nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent = True)
+                nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent=True)
                 print("** nightTimeLineFlushed is now:")
                 print(nightTimeLineFlushed)
             else:
@@ -355,7 +366,7 @@ def insertNightEventWithInputs(file):
                 tmpEndFrame = lastFrame
 
             nightTimeLineFlushed.addEvent(Event(tmpStartFrame, tmpEndFrame))
-            nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent = True)
+            nightTimeLineFlushed.endRebuildEventTimeLine(connection, deleteExistingEvent=True)
             print("*** nightTimeLineFlushed is now:")
             print(nightTimeLineFlushed)
 
@@ -372,39 +383,44 @@ if __name__ == '__main__':
 
     chronoFullBatch = Chronometer("Full batch")
 
-    fileCount = 0 # File Counter
+    fileCount = 0  # File Counter
 
-    if (files != None):
+    if files != None:
         for file in files:
-            if fileCount == 0: # First file
+            if fileCount == 0:  # First file
                 try:
-                    # global startNightInput
-                    # global endNightInput
-                    night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
-                    startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
-                    endNightInput = input("Time of the end of the night (hh:mm:ss):")
-                    fileCount += 1 # Increment file Counter
-
+                    fileCount += 1  # Increment file Counter
                     print("\n")
-                    print("In addition to the night events, this script will also Rebuild the database for those events:")
-                    for i in eventClassList:
-                        print(i)
+                    buildEvents = input("Do you what to rebuild the Events ?")
+                    if buildEvents == "Yes" or buildEvents == 'Y' or buildEvents == "yes":
+                        print("In addition to the night events, this script will also Rebuild the database for those "
+                              "events:")
 
-                    confirm = input("Do you confirm ? ")
+                        for i in eventClassList:
+                            print(i.__name__)
 
-                    if (night == "Y") or (night == "Yes"): # User replied Yes to rebuild the Nights
+                        confirmEvents = input("Do you confirm ? ")
+
+                    else:
+                        print("The Events WILL NOT BE BUILD !!!!")
+
+                    night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
+
+                    if (night == "Y") or (night == "Yes"):  # User replied Yes to rebuild the Nights
+                        startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
+                        endNightInput = input("Time of the end of the night (hh:mm:ss):")
                         print("Processing file, Rebuilding the  nights...", file)
                         insertNightEventWithInputs(file)
                     else:
                         print("THE NIGHTS WILL NOT BE BUILD !!!!")
 
-                    if confirm == "Yes" or confirm == 'Y' or confirm == "yes":
+                    if confirmEvents == "Yes" or confirmEvents == 'Y' or confirmEvents == "yes":
                         process(file)
 
                 except FileProcessException:
                     print("STOP PROCESSING FILE " + file, file=sys.stderr)
 
-            else: #For other files than the first one
+            else:  # For other files than the first one
                 try:
                     print("Processing file", file)
                     insertNightEventWithInputs(file)
@@ -415,5 +431,3 @@ if __name__ == '__main__':
     chronoFullBatch.printTimeInS()
 
     print("*** ALL JOBS DONE ***")
-
-
