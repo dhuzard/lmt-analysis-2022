@@ -59,41 +59,41 @@ class FileProcessException(Exception):
     pass
 
 
-# eventClassList = [
-#                 #BuildEventHuddling,
-#                 BuildEventDetection,
-#                 BuildEventOralOralContact,
-#                 BuildEventOralGenitalContact,
-#                 BuildEventSideBySide,
-#                 BuildEventSideBySideOpposite,
-#                 BuildEventTrain2,
-#                 BuildEventTrain3,
-#                 BuildEventTrain4,
-#                 BuildEventMove,
-#                 BuildEventFollowZone,
-#                 BuildEventRear5,
-#                 BuildEventCenterPeripheryLocation,
-#                 BuildEventRearCenterPeriphery,
-#                 BuildEventSocialApproach,
-#                 BuildEventGetAway,
-#                 BuildEventSocialEscape,
-#                 BuildEventApproachRear,
-#                 BuildEventGroup2,
-#                 BuildEventGroup3,
-#                 BuildEventGroup4,
-#                 BuildEventGroup3MakeBreak,
-#                 BuildEventGroup4MakeBreak,
-#                 BuildEventStop,
-#                 #BuildEventWaterPoint,
-#                 BuildEventApproachContact,
-#                 #BuildEventWallJump,
-#                 BuildEventSAP,
-#                 BuildEventOralSideSequence,
-#                 BuildEventNest3,
-#                 BuildEventNest4
-#                    ]
+eventClassList = [
+                #BuildEventHuddling,
+                BuildEventDetection,
+                BuildEventOralOralContact,
+                BuildEventOralGenitalContact,
+                BuildEventSideBySide,
+                BuildEventSideBySideOpposite,
+                BuildEventTrain2,
+                BuildEventTrain3,
+                BuildEventTrain4,
+                BuildEventMove,
+                BuildEventFollowZone,
+                BuildEventRear5,
+                BuildEventCenterPeripheryLocation,
+                BuildEventRearCenterPeriphery,
+                BuildEventSocialApproach,
+                BuildEventGetAway,
+                BuildEventSocialEscape,
+                BuildEventApproachRear,
+                BuildEventGroup2,
+                BuildEventGroup3,
+                BuildEventGroup4,
+                BuildEventGroup3MakeBreak,
+                BuildEventGroup4MakeBreak,
+                BuildEventStop,
+                #BuildEventWaterPoint,
+                BuildEventApproachContact,
+                #BuildEventWallJump,
+                BuildEventSAP,
+                BuildEventOralSideSequence,
+                BuildEventNest3,
+                BuildEventNest4
+                   ]
 
-eventClassList = [BuildEventStop]
+# eventClassList = [BuildEventStop]
 
 # eventClassList = [BuildEventPassiveAnogenitalSniff, BuildEventOtherContact, BuildEventExclusiveSideSideNoseAnogenitalContact]
 # eventClassList = [BuildEventApproachContact2]
