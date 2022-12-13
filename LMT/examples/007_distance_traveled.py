@@ -17,29 +17,29 @@ if __name__ == '__main__':
     for file in files:
         
         # connect to database
-        connection = sqlite3.connect( file )
+        connection = sqlite3.connect(file)
         
         # create an animalPool, which basically contains your animals
         animalPool = AnimalPool()
         
         # load infos about the animals
-        animalPool.loadAnimals( connection )
+        animalPool.loadAnimals(connection)
         
         # load all detection (positions) of all animals for the first hour
-        animalPool.loadDetection( start = 0, end = 10*oneMinute )
+        animalPool.loadDetection(start=0, end=10*oneMinute)
         
         # filter detection by area (in cm from the top left of the cage)
-        animalPool.filterDetectionByArea( 0, 30, 25, 50 );
+        animalPool.filterDetectionByArea(0, 30, 25, 50);
         
         # loop over all animals in this database
         for animal in animalPool.getAnimalList():
             
             # print RFID of animal
-            print ( "Animal : " , animal.RFID )
+            print("Animal : ", animal.RFID)
             # distance traveled by animal (in cm):            
-            print( "Distance traveled in area: (in centimeter): " , animal.getDistance( ) )
+            print("Distance traveled in area: (in centimeter): ", animal.getDistance())
             
-        animalPool.plotTrajectory( title="Trajectories filtered by area" , scatter=True )
+        animalPool.plotTrajectory(title="Trajectories filtered by area", scatter=True)
             
     
     
