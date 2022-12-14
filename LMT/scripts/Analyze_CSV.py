@@ -38,23 +38,43 @@ print(df.info())
 temp_df = df[(df["Date"] == 221013) & (df["Cage"] == 'Cage1') & (df["name"] == 'Move isolated') & (df["Night-Phase"] == 1)]
 print(temp_df)
 
-final_df = temp_df[['numberOfEvents', 'RFidA', 'Bin']]
+final_df = temp_df[['numberOfEvents', 'RFidA', 'Bin', 'GenoA']]
+print("final_df")
 print(final_df)
 
-# final_df2 = final_df[final_df['Bin'] == 1]
-# print(final_df2)
+bins = final_df['Bin'].unique()
+animals = final_df['RFidA'].unique()
+print("animals")
+print(animals)
+nbrAnimals = len(animals)
+nbrEvents = {}
 
-fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(15, 12))
-plt.subplots_adjust(hspace=0.5)
-fig.suptitle("Number of 'Move isolated' per bin", fontsize=18, y=0.95)
-axs = axs.ravel()
+for i in animals:
+    x=final_df[final_df["RFidA"] == i]['Bin']
+    y=final_df[final_df["RFidA"] == i]["numberOfEvents"]
+    plt.plot(x,y, label = final_df[final_df["RFidA"] == i]['GenoA'].unique().tolist())
+    # final_df[final_df["RFidA"] == i].plot(x='Bin', y='numberOfEvents', kind = 'line')
+    # nbrEvents[i] = final_df[(final_df["RFidA"] == i)]['numberOfEvents']
+plt.title('Numbers of "Move isolated" per bin of each mouse')
+plt.xlabel('Time bins')
+plt.ylabel('Numbers of "Move isolated"')
+plt.legend(loc = "upper left")
+plt.show()
+print("nbr events")
+# print(nbrEvents)
 
-for i in final_df['Bin'].unique():
-    plot = axs[i].scatter([str(el) for el in final_df['RFidA']], final_df['numberOfEvents'])
-    axs[i].set_title(str(i))
-    plt.xlabel("Mouse")
-    plt.ylabel("Number of 'Move isolated'")
-    plot.show()
+
+# fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(15, 12))
+# plt.subplots_adjust(hspace=0.5)
+# fig.suptitle("Number of 'Move isolated' per bin", fontsize=18, y=0.95)
+# axs = axs.ravel()
+#
+# for i in final_df['Bin'].unique():
+#     plot = axs[i].scatter([str(el) for el in final_df['RFidA']], final_df['numberOfEvents'])
+#     axs[i].set_title(str(i))
+#     plt.xlabel("Mouse")
+#     plt.ylabel("Number of 'Move isolated'")
+#     plt.show()
 
 # for line in final_df['Bin'].unique().tolist():
 #     fig, ax = plt.subplots(nrows=3, ncols=4, figsize=(15, 12))
@@ -66,6 +86,9 @@ for i in final_df['Bin'].unique():
 #     plt.ylabel("Number of 'Move isolated'")
 # plt.show()
 
+# final_df2 = final_df[final_df['Bin'] == 1]
+# print(final_df2)
+#
 # #WORK !!
 # fig, ax = plt.subplots()
 # plot = ax.scatter([str(el) for el in final_df2['RFidA']], final_df2['numberOfEvents'])
