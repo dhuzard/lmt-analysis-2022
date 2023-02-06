@@ -17,7 +17,7 @@ from lmtanalysis import BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, Bu
     BuildEventSideBySide, BuildEventSideBySideOpposite, BuildEventDetection,\
     BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP,\
     BuildEventOralSideSequence, CheckWrongAnimal,\
-    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventFight, BuildEventGetAway
+    CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, BuildEventNight, BuildEventGetAway
     
 from psutil import virtual_memory
 
@@ -32,7 +32,6 @@ from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache,\
 from lmtanalysis.EventTimeLineCache import EventTimeLineCached
 from astropy.table.bst import MinValue
 
-
 class FileProcessException(Exception):
     pass
 
@@ -43,7 +42,6 @@ def process( file ):
     chronoFullFile = Chronometer("File " + file )
     
     connection = sqlite3.connect( file )
-    
 
     try:
 
@@ -74,7 +72,6 @@ def process( file ):
         print( error, file=sys.stderr ) 
         
         raise FileProcessException()
-            
 
 if __name__ == '__main__':
     
@@ -97,4 +94,3 @@ if __name__ == '__main__':
         
     chronoFullBatch.printTimeInS()
     print( "*** ALL JOBS DONE ***")
-        

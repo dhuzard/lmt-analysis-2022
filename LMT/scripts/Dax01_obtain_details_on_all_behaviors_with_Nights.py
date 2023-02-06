@@ -157,7 +157,6 @@ if __name__ == '__main__':
             print(NightFrames)
             #print(NightFrames[0])
 
-
             #TODO find number of night and create bins for each
 
             nbTimebin = []
@@ -250,6 +249,7 @@ if __name__ == '__main__':
         for night in NightFrames:
             print(night)
             bin = 1
+            # for z in range(min(night), max(night), timeBinsDuration): ????
             for z in range(night[0], night[1], timeBinsDuration):
                 startBin = start[fileName] + bin * timeBinsDuration
                 stopBin = startBin + timeBinsDuration
