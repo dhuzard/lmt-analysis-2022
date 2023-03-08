@@ -4,10 +4,38 @@ warnings.simplefilter(action='ignore')
 import os
 import glob
 import csv
+import shutil
 
-#read the csv file
-df = pd.read_csv("C:/Users/paulc/Desktop/Stage/lmt-analysis-2022/LMT/scripts/Dataframes/221018_Amphet_Cage1_2"
-                 "-1Amphet.sqlite.csv")
+# spécifier le nom du nouveau dossier à créer
+new_file = "Dataframes"
+
+# spécifier le chemin du dossier où les fichiers .csv se trouvent
+root = "C:/Users/paulc/Desktop/Stage/lmt-analysis-2022/LMT/scripts/"
+
+# spécifier le chemin du dossier où le nouveau dossier sera créé
+final_file = "C:/Users/paulc/Desktop/Stage/lmt-analysis-2022/LMT/scripts/"
+
+# vérifier si le dossier existe déjà
+if os.path.exists(os.path.join(final_file, new_file)):
+    # si oui, le supprimer
+    os.rmdir(os.path.join(final_file, new_file))
+
+# créer le nouveau dossier dans le dossier de destination
+new_path = os.path.join(final_file, new_file)
+os.makedirs(new_path)
+
+# parcourir tous les fichiers dans le dossier initial
+for file in os.listdir(root):
+
+    # vérifier si le fichier est un fichier .csv
+    if file.endswith(".csv"):
+
+        # spécifier le chemin complet du fichier
+        path = os.path.join(root, file)
+
+        # déplacer le fichier vers le nouveau dossier
+        shutil.move(path, new_path)
+
 #read the path
 file_path = "C:/Users/paulc/Desktop/Stage/lmt-analysis-2022/LMT/scripts/Dataframes/"
 os.chdir("C:/Users/paulc/Desktop/Stage/lmt-analysis-2022/LMT/scripts/Dataframes/")

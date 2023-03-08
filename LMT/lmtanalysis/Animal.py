@@ -1143,7 +1143,6 @@ class AnimalPool():
 
         print ( len( self.anonymousDetection ) , " frames containing anonymous detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
 
-
     def loadDetection (self , start = None, end=None , lightLoad = False ):
         self.detectionStartFrame = start
         self.detectionEndFrame   = end
@@ -1378,7 +1377,6 @@ class AnimalPool():
         self.plotSensorData( sensor = "LIGHTVISIBLE" , minValue = 40 , saveFile = file+"_log_light visible.pdf", show = show  )
         self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show  )
 
-
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
 
         print( "AnimalPool: plot trajectory.")
@@ -1470,7 +1468,6 @@ class AnimalPool():
 
         return particleDictionnary
 
-
     def getDetectionTable(self):
         """
         Returns detections as pandas table for all animals in pool.
@@ -1495,7 +1492,6 @@ class AnimalPool():
 
         df = pd.DataFrame(data)
 
-
         df["x_cm"] = (df.x - cornerCoordinates50x50Area[0][0]) / (cornerCoordinates50x50Area[1][0] - cornerCoordinates50x50Area[0][0]) * ARENA_SIZE
         df["y_cm"] = (df.y - cornerCoordinates50x50Area[1][1]) / (cornerCoordinates50x50Area[2][1] - cornerCoordinates50x50Area[1][1]) * ARENA_SIZE
 
@@ -1507,7 +1503,6 @@ class AnimalPool():
         df.insert(3, "time", pd.to_timedelta(df.sec, unit="s"))
 
         return df.sort_values("time").reset_index(drop=True)
-
 
     def getSingleEventTable(self, event_name):
         """
@@ -1543,7 +1538,6 @@ class AnimalPool():
         df.insert(2, "time", pd.to_timedelta(df["start_sec"], unit="s"))
 
         return df.sort_values("time").reset_index(drop=True)
-
 
     def getAllEventsTable(self):
         """

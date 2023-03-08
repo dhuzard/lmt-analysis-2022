@@ -7,15 +7,16 @@ Created on 13 sept. 2017
 import sqlite3
 from time import *
 import datetime
-from lmtanalysis.Util import *
-
-from lmtanalysis.Animal import *
 import matplotlib.pyplot as plt
+import os
+import sys
+import traceback
+
+from lmtanalysis.Util import *
+from lmtanalysis.Animal import *
 from lmtanalysis.Event import *
 from lmtanalysis.Measure import *
-
 from lmtanalysis.Util import getAllEvents
-
 from lmtanalysis.BuildEventNight import *
 from lmtanalysis import BuildEventApproachContact, BuildEventOtherContact, BuildEventPassiveAnogenitalSniff, \
     BuildEventHuddling, BuildEventTrain3, BuildEventTrain4, BuildEventTrain2, BuildEventFollowZone, BuildEventRear5, \
@@ -26,14 +27,9 @@ from lmtanalysis import BuildEventApproachContact, BuildEventOtherContact, Build
     BuildEventSideBySideOpposite, BuildEventDetection, BuildDataBaseIndex, BuildEventWallJump, BuildEventSAP, \
     BuildEventOralSideSequence, CheckWrongAnimal, CorrectDetectionIntegrity, BuildEventNest4, BuildEventNest3, \
     BuildEventGetAway
-
 from psutil import virtual_memory
-
 from tkinter.filedialog import askopenfilename
 from lmtanalysis.TaskLogger import TaskLogger
-import os
-import sys
-import traceback
 from lmtanalysis.FileUtil import getFilesToProcess
 from lmtanalysis.EventTimeLineCache import flushEventTimeLineCache, \
     disableEventTimeLineCache, EventTimeLineCached
@@ -45,31 +41,33 @@ global endNightInput
 minT = 0
 
 # maxT = 5000
-maxT = 11 * oneHour
+maxT = 72 * oneHour
 # maxT = (6+1)*oneHour
 ''' time window to compute the events. '''
+# windowT = 1 * oneHour
 windowT = 1 * oneDay
 # windowT = 3*oneDay #int (0.5*oneDay)
 
-
 USE_CACHE_LOAD_DETECTION_CACHE = True
-
 
 class FileProcessException(Exception):
     pass
 
+'''Few events must be created with others like Move which must be activated with Stop events because Move events are 
+created in relation to Stop events '''
 
 eventClassList = [
-                #BuildEventHuddling,
+                # # BuildEventHuddling,
                 BuildEventDetection,
+                BuildEventStop,
+                BuildEventMove,
                 BuildEventOralOralContact,
                 BuildEventOralGenitalContact,
                 BuildEventSideBySide,
                 BuildEventSideBySideOpposite,
                 BuildEventTrain2,
                 BuildEventTrain3,
-                BuildEventTrain4,
-                BuildEventMove,
+                # BuildEventTrain4,
                 BuildEventFollowZone,
                 BuildEventRear5,
                 BuildEventCenterPeripheryLocation,
@@ -80,17 +78,16 @@ eventClassList = [
                 BuildEventApproachRear,
                 BuildEventGroup2,
                 BuildEventGroup3,
-                BuildEventGroup4,
+                # BuildEventGroup4,
                 BuildEventGroup3MakeBreak,
-                BuildEventGroup4MakeBreak,
-                BuildEventStop,
-                #BuildEventWaterPoint,
+                # BuildEventGroup4MakeBreak,
+                # BuildEventWaterPoint,
                 BuildEventApproachContact,
-                #BuildEventWallJump,
+                # BuildEventWallJump,
                 BuildEventSAP,
                 BuildEventOralSideSequence,
                 BuildEventNest3,
-                BuildEventNest4
+                # BuildEventNest4
                    ]
 
 # eventClassList = [BuildEventStop]
@@ -111,12 +108,20 @@ eventClassList = [
                 BuildEventSAP
                    ]'''
 
-
 def flushNightEvents(connection):
     ''' flush 'NIGHT' event in database '''
     print("delete night in DBs ?")
     deleteEventTimeLineInBase(connection, "night")
 
+def flushEvents( connection ):
+
+    print("Flushing events...")
+
+    for ev in eventClassList:
+
+        chrono = Chronometer( "Flushing event " + str(ev) )
+        ev.flush( connection );
+        chrono.printTimeInS()
 
 def processTimeWindow(connection, file, currentMinT, currentMaxT):
     CheckWrongAnimal.check(connection, tmin=currentMinT, tmax=currentMaxT)
@@ -141,7 +146,6 @@ def processTimeWindow(connection, file, currentMinT, currentMaxT):
         chrono = Chronometer(str(ev))
         ev.reBuildEvent(connection, file, tmin=currentMinT, tmax=currentMaxT, pool=animalPool)
         chrono.printTimeInS()
-
 
 def process(file):
     print("\n***************************************************************************")
@@ -181,7 +185,7 @@ def process(file):
 
     try:
 
-        # flushNightEvents(connection)
+        flushEvents(connection)
 
         while currentT < maxT:
 
@@ -247,7 +251,6 @@ def process(file):
         print(error, file=sys.stderr)
 
         raise FileProcessException()
-
 
 def insertNightEventWithInputs(file):
     '''
@@ -375,7 +378,6 @@ def insertNightEventWithInputs(file):
         print("Going to the next day: ")
         currentNight.nextDay()
 
-
 if __name__ == '__main__':
     print("Code launched.")
 
@@ -384,7 +386,7 @@ if __name__ == '__main__':
     chronoFullBatch = Chronometer("Full batch")
 
     fileCount = 0  # File Counter
-
+    # if files is not None:
     if files != None:
         for file in files:
             if fileCount == 0:  # First file
@@ -392,7 +394,7 @@ if __name__ == '__main__':
                     fileCount += 1  # Increment file Counter
                     print("\n")
                     buildEvents = input("Do you want to rebuild the Events ?")
-                    if buildEvents == "Yes" or buildEvents == 'Y' or buildEvents == "yes":
+                    if buildEvents == "Yes" or buildEvents == "yes" or buildEvents == 'Y' or buildEvents == "y":
                         print("In addition to the night events, this script will also Rebuild the database for those "
                               "events:")
 

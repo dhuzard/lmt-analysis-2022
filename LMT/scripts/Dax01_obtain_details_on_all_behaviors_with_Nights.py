@@ -5,10 +5,8 @@ Created on 20 August 2019
 """
 
 import sqlite3
-
 import warnings
 warnings.simplefilter(action='ignore')
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,7 +17,6 @@ from lmtanalysis.Animal import AnimalPool
 from lmtanalysis.Event import EventTimeLine, plotMultipleTimeLine
 from lmtanalysis.FileUtil import getFilesToProcess
 from lmtanalysis.Measure import *
-
 
 def computeBehaviorsData(behavior, show=False):
     """ Computes the details (Mean, Nb, Std, CI95...) of behaviors."""
@@ -34,7 +31,6 @@ def computeBehaviorsData(behavior, show=False):
     meanLength = behavior.getMeanEventLength()
     numberOfEvents = behavior.getNumberOfEvent()
     stdLength = behavior.getStandardDeviationEventLength()
-
 
     """    if behavior.getMedianEventLength() is not None:
         medianLength = behavior.getMedianEventLength()
@@ -82,7 +78,6 @@ def computeBehaviorsData(behavior, show=False):
 
     return returnedBehaviors
 
-
 if __name__ == '__main__':
     files = getFilesToProcess()
     if len(files) == 0:
@@ -98,7 +93,6 @@ if __name__ == '__main__':
         timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
 
         fileGlobal = input("Enter the filename for the .csv WITH ALL DATA INSIDE: ")
-
 
         useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
 
@@ -143,15 +137,18 @@ if __name__ == '__main__':
         else:
             print("!!! ERROR: FILE NAME DO NOT MATCH!!")
 
-        connection = sqlite3.connect(file)  # connect to database
-        animalPool = AnimalPool()  # create an animalPool, which basically contains your animals
-        animalPool.loadAnimals(connection)  # load infos about the animals
+        connection = sqlite3.connect(file) # connect to database
+        animalPool = AnimalPool() # create an animalPool, which basically contains your animals
+        animalPool.loadAnimals(connection) # load infos about the animals
 
         animalNumber = animalPool.getNbAnimals()
         print(f"There are {animalNumber} animals,")
 
         if useNights.lower() == "yes" or useNights.lower() == "y":
-
+            # Le problème vient d'ici (fonction getNightStartStop) ? Est-ce que ça ne prendrait pas juste la première
+            # nuit ? Faire une boucle if qui dit que si night_phase > 1 alors on prendra, à chaque night_count,
+            # les données des frames suivantes comme getNightStartStop ne prend que le startframe et le endframe de
+            # l'évènement night ?
             NightFrames = animalPool.getNightStartStop()
             print("The night events are:")
             print(NightFrames)
@@ -249,7 +246,10 @@ if __name__ == '__main__':
         for night in NightFrames:
             print(night)
             bin = 1
-            # for z in range(min(night), max(night), timeBinsDuration): ????
+            # Je pense que le problème vient du fait que toutes les valeurs sont en rapport avec le premier start bin
+            # du fichier, donc au lieu de passer au jour suivant, ça va recommencer par rapport au premier start
+            # bin...Le problème doit aussi venir de "dicoOfBehInfos" vu que ce sont les valeurs de Night-Phase qui
+            # sont utilisées
             for z in range(night[0], night[1], timeBinsDuration):
                 startBin = start[fileName] + bin * timeBinsDuration
                 stopBin = startBin + timeBinsDuration
@@ -419,7 +419,7 @@ if __name__ == '__main__':
 
                 bin += 1
             night_count += 1
-        count += 1  # TODO REPLACE THIS COUNT BY A FOR LOOP ON FILES
+        count += 1 # TODO REPLACE THIS COUNT BY A FOR LOOP ON FILES
 
         dfGlobal = dfGlobal.append(dfOfBehInfos)  # Add the data to the global Dataframe
 
