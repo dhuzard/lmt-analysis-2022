@@ -33,6 +33,7 @@ from lxml import etree
 import matplotlib.ticker as ticker
 #from lmtanalysis.Util import convert_to_d_h_m_s, getDatetimeFromFrame, mute_prints
 from pickle import NONE
+from matplotlib import colors
 
 
 idAnimalColor = [ None, "red","green","blue","orange"]
@@ -45,7 +46,6 @@ def getAnimalColor( animalId ):
     return idAnimalColor[ animalId ]
 
 class Animal():
-
 
     def __init__(self, baseId , RFID , name=None, genotype=None , user1 = None, age=None, sex=None, strain=None, setup=None, conn = None ):
         self.baseId = baseId
@@ -61,7 +61,6 @@ class Animal():
         self.detectionDictionnary = {}
         
             
-
     def setGenotype(self, genotype ):
         self.genotype = genotype
         cursor = self.conn.cursor()
@@ -71,21 +70,21 @@ class Animal():
         cursor.close()
         
         
-        
-        
-
     def __str__(self):
         return "Animal Id:{id} Name:{name} RFID:{rfid} Genotype:{genotype} User1:{user1}"\
             .format( id=self.baseId, rfid=self.RFID, name=self.name, genotype=self.genotype, user1=self.user1 )
 
+    
     def getColor(self):
         return getAnimalColor( self.baseId )
 
+    
     def getDetectionAt(self, t):
         if t in self.detectionDictionnary:
             return self.detectionDictionnary[t]
         return None
 
+    
     def loadDetection(self, start=None, end=None, lightLoad = False ):
         '''
         lightLoad only loads massX and massY to speed up the load. Then one can only compute basic features such as global speed of the animals
@@ -93,6 +92,8 @@ class Animal():
         print ( self.__str__(), ": Loading detection.")
         chrono = Chronometer("Load detection")
 
+        print("IN LOAD DETECTION !!!!!!!")
+            
         self.detectionDictionnary.clear()
 
         cursor = self.conn.cursor()
@@ -147,15 +148,15 @@ class Animal():
 
         print ( self.__str__(), " ", len( self.detectionDictionnary ) , " detections loaded in {} seconds.".format( chrono.getTimeInS( )) )
 
+        
     def loadMask(self , frame ):
         self.setMask( self.getBinaryDetectionMask( frame ) )
 
+        
     def clearMask(self):
         self.setMask( None )
 
     def getNumberOfDetection(self, tmin, tmax):
-
-
         return len ( self.detectionDictionnary.keys() )
 
 
@@ -167,6 +168,7 @@ class Animal():
                 self.detectionDictionnary.pop( key )
                 nbRemoved+=1
         print( "Filtering head tail detection. number of detection removed:", nbRemoved )
+
         
     def filterDetectionByInstantSpeed(self , minSpeed, maxSpeed ):
         """
@@ -190,6 +192,7 @@ class Animal():
 
         print( "Filtering Instant speed min:",minSpeed, "max:",maxSpeed, "number of detection removed:", nbRemoved )
 
+        
     def filterDetectionByArea(self, x1, y1, x2, y2 ):
         '''
         filter detection in the cage ( using centimeter, starting at top left of the cage )
@@ -210,6 +213,7 @@ class Animal():
 
         print( "Filtering area, number of detection removed:", nbRemoved )
 
+        
     def filterDetectionByEventTimeLine( self, eventTimeLineVoc ):
         '''
         filter detection using an event. Keep only what matches the event
@@ -228,10 +232,11 @@ class Animal():
 
         print( "Filtering area, number of detection removed:", nbRemoved )
 
+        
     def clearDetection(self):
-
         self.detectionDictionnary.clear()
 
+        
     def getMaxDetectionT(self):
         """
         returns the timepoint of the last detection.
@@ -241,9 +246,9 @@ class Animal():
             return None
 
         return sorted(self.detectionDictionnary.keys())[-1]
-
+    
+    
     def getTrajectoryData( self , maskingEventTimeLine=None ):
-
         keyList = sorted(self.detectionDictionnary.keys())
 
         if maskingEventTimeLine!=None:
@@ -254,28 +259,25 @@ class Animal():
 
         previousKey = 0
 
-
         for key in keyList:
-
             #print ( "key:", key, "value", self.getSpeed( key ) , "previous:" , previousKey )
 
             if previousKey+1 != key:
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 previousKey = key
-
                 #print("break previous")
                 continue
             previousKey = key
 
             a = self.detectionDictionnary.get( key )
-            if ( a==None):
+            if a == None:
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 #print("break none A")
                 continue
             b = self.detectionDictionnary.get( key+1 )
-            if ( b==None):
+            if b == None:
                 xList.append( [np.nan, np.nan] )
                 yList.append( [np.nan, np.nan] )
                 #print("break none B")
@@ -283,11 +285,15 @@ class Animal():
 
             xList.append( [a.massX,b.massX] )
             yList.append( [-a.massY,-b.massY] )
+            
+        # print(xList)
+        # print(' //// ')
+        # print(yList)
 
         return xList, yList
 
+    
     def getNoseTrajectoryData( self , maskingEventTimeLine=None ):
-
         keyList = sorted(self.detectionDictionnary.keys())
 
         if maskingEventTimeLine!=None:
@@ -341,9 +347,9 @@ class Animal():
 
         return xList, yList
 
+    
     def plotTrajectory(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
-
-        print ("Draw trajectory of animal " + self.name )
+        print ("(within Animal) Draw trajectory of animal " + self.name )
 
         xList, yList = self.getTrajectoryData( maskingEventTimeLine )
 
@@ -353,6 +359,19 @@ class Animal():
         plt.ylim(-370, -40)
 
         if ( show ):
+            plt.show()
+            
+    def plotHeatmap(self , show=True, color='k', maskingEventTimeLine=None, title = "" ):
+        print ("(within Animal) Draw Heatmap of animal " + self.name )
+
+        xList, yList = self.getTrajectoryData( maskingEventTimeLine )
+
+        plt.hist2d( xList, yList, color=color, linestyle='-', linewidth=1, alpha=0.5, label= self.name )
+        plt.title( title + self.RFID )
+        plt.xlim(90, 420)
+        plt.ylim(-370, -40)
+
+        if show:
             plt.show()
 
 
@@ -1053,7 +1072,7 @@ class AnimalPool():
         elif ( nbField == 4 ):
             query+="ID,RFID,NAME,GENOTYPE"
         elif ( nbField == 5 ):
-            query+="ID,RFID,NAME,GENOTYPE,IND"
+            query+="ID,RFID,NAME,GENOTYPE,SEX"
         elif ( nbField == 7 ):
             query+="ID,RFID,NAME,GENOTYPE,AGE,SEX,STRAIN"
         elif ( nbField == 8 ):
@@ -1378,7 +1397,6 @@ class AnimalPool():
         self.plotSensorData( sensor = "LIGHTVISIBLEANDIR" , minValue = 50 , saveFile = file+"_log_light visible and infra.pdf", show = show  )
 
     def plotTrajectory( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
-
         print( "AnimalPool: plot trajectory.")
         nbCols = len( self.getAnimalList() )+1
         fig, axes = plt.subplots( nrows = 1 , ncols = nbCols , figsize=( nbCols*4, 1*4 ) , sharex='all', sharey='all'  )
@@ -1386,13 +1404,14 @@ class AnimalPool():
         if title==None:
             title="Trajectory of animals"
 
-        #draw all animals
+        # Draw Trajectories of all animals in one graph
         axis = axes[0]
         legendList=[]
         for animal in self.getAnimalList():
-
+            # print("for loop #1")
             print ("Compute trajectory of animal " + animal.name )
             xList, yList = animal.getTrajectoryData( maskingEventTimeLine )
+            
             print ("Draw trajectory of animal " + animal.name )
             if scatter == True:
                 axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
@@ -1404,14 +1423,16 @@ class AnimalPool():
         axis.set_xlim(90, 420)
         axis.set_ylim(-370, -40)
 
-        #draw separated animals
+        # draw separated animals in separated sub-graphs
         for animal in self.getAnimalList():
+            # print("for loop #2")
             axis = axes[self.getAnimalList().index(animal)+1]
 
             legendList=[]
 
             print ("Compute trajectory of animal " + animal.name )
             xList, yList = animal.getTrajectoryData( maskingEventTimeLine )
+            
             print ("Draw trajectory of animal " + animal.name )
             if scatter == True:
                 axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
@@ -1425,11 +1446,107 @@ class AnimalPool():
 
         if saveFile !=None:
             print("Saving figure : " + saveFile )
-            fig.savefig( saveFile, dpi=100)
+            fig.savefig( saveFile, dpi=200)
 
-        if ( show ):
+        if show:
+            plt.show()
+            
+        plt.close()
+
+        
+    def plotHeatmap( self , show=True, maskingEventTimeLine=None , title = None, scatter = False, saveFile = None ):
+        print( "AnimalPool: plot Heatmap.")
+        nbCols = len( self.getAnimalList() )+1
+        fig, axes = plt.subplots( nrows = 1 , ncols = nbCols , figsize=( nbCols*4, 1*4 ) , sharex='all', sharey='all'  )
+
+        if title==None:
+            title="Heatmap of animals"
+
+        # Draw all animals together
+        axis = axes[0]
+        legendList=[]
+        for animal in self.getAnimalList():
+
+            print ("Compute trajectory of animal " + animal.name )
+            xList2, yList2 = animal.getTrajectoryData( maskingEventTimeLine )
+                        
+            # if scatter == True:
+            #     axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
+            #     legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
+            # else:
+            #     axis.hist2d( xList, yList)
+            
+            xList_singlevalue = [item[0] for item in xList2]
+            yList_singlevalue = [item[0] for item in yList2]
+            
+            new_xlist = [item for item in xList_singlevalue if not(math.isnan(item)) == True]
+            new_ylist = [item for item in yList_singlevalue if not(math.isnan(item)) == True]
+            
+            xmin = min(new_xlist)
+            xmax = max(new_xlist)
+            ymin = min(new_ylist)
+            ymax = max(new_ylist)
+            # print(xmin)
+            # print(xmax)
+            # print(ymin)
+            # print(ymax)
+            # print(xList_singlevalue)
+            
+            axis.hist2d(xList_singlevalue, yList_singlevalue, bins=100, range = [[xmin, xmax], [ymin, ymax]], norm = colors.LogNorm())
+
+        axis.legend( handles = legendList , loc=1 )
+        axis.set_xlim(90, 420)
+        axis.set_ylim(-370, -40)
+
+        #draw separated animals in separated graphs
+        for animal in self.getAnimalList():
+            axis = axes[self.getAnimalList().index(animal)+1]
+
+            legendList=[]
+
+            print ("Compute trajectory of animal " + animal.name )
+            xList2, yList2 = animal.getTrajectoryData( maskingEventTimeLine )
+            
+            print ("Draw HeatMap of animal " + animal.name )
+            
+            # if scatter == True:
+            #     axis.scatter( xList, yList, color= animal.getColor() , s=1 , linewidth=1, alpha=0.05, label= animal.RFID )
+            #     legendList.append( mpatches.Patch(color=animal.getColor(), label=animal.RFID) )
+            # else:
+            #     axis.hist2d( xList, yList)
+            #     # axis.hist2d( xList, yList, color= animal.getColor() , linestyle='-', linewidth=1, alpha=0.5, label= animal.RFID )
+            
+            xList_singlevalue = [item[0] for item in xList2]
+            yList_singlevalue = [item[0] for item in yList2]
+            
+            new_xlist = [item for item in xList_singlevalue if not(math.isnan(item)) == True]
+            new_ylist = [item for item in yList_singlevalue if not(math.isnan(item)) == True]
+            
+            xmin = min(new_xlist)
+            xmax = max(new_xlist)
+            ymin = min(new_ylist)
+            ymax = max(new_ylist)
+            # print(xmin)
+            # print(xmax)
+            # print(ymin)
+            # print(ymax)
+            # print(xList_singlevalue)
+            
+            axis.hist2d(xList_singlevalue, yList_singlevalue, bins=100, range = [[xmin, xmax], [ymin, ymax]], norm = colors.LogNorm())
+
+        
+        axis.legend( handles = legendList , loc=1 )
+
+        fig.suptitle( title )
+
+        if saveFile !=None:
+            print("Saving figure : " + saveFile )
+            fig.savefig( saveFile, dpi=200)
+
+        if show:
             plt.show()
         plt.close()
+        
 
     def showMask(self, t ):
         '''
@@ -1446,6 +1563,7 @@ class AnimalPool():
 
         plt.show()
 
+        
     def getParticleDictionnary(self , start, end ):
         '''
         return the number of particle per frame
