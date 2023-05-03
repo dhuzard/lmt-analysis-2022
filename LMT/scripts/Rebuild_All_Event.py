@@ -182,7 +182,7 @@ def process( file ):
         while currentT < maxT:
 
             currentMinT = currentT
-            currentMaxT = currentT+ windowT
+            currentMaxT = currentT + windowT
             if ( currentMaxT > maxT ):
                 currentMaxT = maxT
 
