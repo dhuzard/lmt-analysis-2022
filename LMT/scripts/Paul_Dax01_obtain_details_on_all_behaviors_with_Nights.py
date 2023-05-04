@@ -1,7 +1,12 @@
 """
-Created on 20 August 2019
+Created on 20 August 2019 + update in 2020 by D. Huzard + updated in 2023 by Paul Carrascosa
 
-@author: Dax
+@author: D. Huzard, P. Carrascosa
+"""
+
+"""
+This code will extract all the behaviors into timebins and export it in .csv files.
+The Goal is to then use an ipywidget tool, based on dataframes to compute Graphs and mixed model statistics.
 """
 
 import sqlite3
@@ -92,7 +97,7 @@ if __name__ == '__main__':
 
         timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
 
-        fileGlobal = input("Enter the filename for the .csv WITH ALL DATA INSIDE: ")
+        # fileGlobal = input("Enter the filename for the .csv WITH ALL DATA INSIDE: ")
 
         useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
 
