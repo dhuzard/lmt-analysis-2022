@@ -85,43 +85,43 @@ def computeBehaviorsData(behavior, show=False):
 
 if __name__ == '__main__':
     files = getFilesToProcess()
-    if len(files) == 0:
-        print("NO FILE TO PROCESS !!!!!")
-    if len(files) >= 1:
-        filenames = [os.path.basename(files[x]) for x in range(0, len(files))]
-        # print(f"{files} => {filenames}")
+    # if len(files) == 0:
+    #     print("NO FILE TO PROCESS !!!!!")
+    # if len(files) >= 1:
+    filenames = [os.path.basename(files[x]) for x in range(0, len(files))]
+    # print(f"{files} => {filenames}")
 
-        ### DEFINE CONSTANTS ###
-        start = {}
-        stop = {}
+    ### DEFINE CONSTANTS ###
+    start = {}
+    stop = {}
 
-        timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
+    timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
 
-        # fileGlobal = input("Enter the filename for the .csv WITH ALL DATA INSIDE: ")
+    # fileGlobal = input("Enter the filename for the .csv WITH ALL DATA INSIDE: ")
 
-        useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
+    useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
 
-        """
-        useSameStartStop = input("Do you want to use the same start & stop frames for all DBs ? ('Yes'/'No'): ")
+    """
+    useSameStartStop = input("Do you want to use the same start & stop frames for all DBs ? ('Yes'/'No'): ")
 
-        if useSameStartStop.lower() == "yes":
-            startAll = int(input(f"Enter the Global STARTING frame:"))
-            stopAll = int(input(f"Enter the Global ENDING frame:"))
-            nbTimebins = int((stopAll - startAll) / timeBinsDuration)
-            print(f"There are {nbTimebins} timebins of {timeBinsDuration} frames (= {timeBinsDuration / 30 / 60} "
-                  f"minutes) between frames: Start={startAll} and Stop={stopAll}.")
-            for filename in filenames:
-                start[filename] = startAll
-                stop[filename] = stopAll
+    if useSameStartStop.lower() == "yes":
+        startAll = int(input(f"Enter the Global STARTING frame:"))
+        stopAll = int(input(f"Enter the Global ENDING frame:"))
+        nbTimebins = int((stopAll - startAll) / timeBinsDuration)
+        print(f"There are {nbTimebins} timebins of {timeBinsDuration} frames (= {timeBinsDuration / 30 / 60} "
+              f"minutes) between frames: Start={startAll} and Stop={stopAll}.")
+        for filename in filenames:
+            start[filename] = startAll
+            stop[filename] = stopAll
 
-        if useSameStartStop.lower() == "no":
-            for filename in filenames:
-                start[filename] = int(input(f"Enter the STARTING frame for {filename}:"))
-                stop[filename] = int(input(f"Enter the ENDING frame for {filename}:"))
-                nbTimebins = int((stop[filename] - start[filename]) / timeBinsDuration)
-                print(f"There are {nbTimebins} timebins of {timeBinsDuration} frames (= {timeBinsDuration/30/60} minutes) "
-                      f"between frames: Start={start[filename]} and Stop={stop[filename]}.")
-        """
+    if useSameStartStop.lower() == "no":
+        for filename in filenames:
+            start[filename] = int(input(f"Enter the STARTING frame for {filename}:"))
+            stop[filename] = int(input(f"Enter the ENDING frame for {filename}:"))
+            nbTimebins = int((stop[filename] - start[filename]) / timeBinsDuration)
+            print(f"There are {nbTimebins} timebins of {timeBinsDuration} frames (= {timeBinsDuration/30/60} minutes) "
+                  f"between frames: Start={start[filename]} and Stop={stop[filename]}.")
+    """
 
     #Create a Global Dataframe with all data:
     dfGlobal = pd.DataFrame()
@@ -436,7 +436,7 @@ if __name__ == '__main__':
         print("##################################################################################")
         print("##################################################################################")
         print("######################## Close Connection with Database ##########################")
-        connection.close()
+    connection.close()
 
     # dfGlobal.to_csv(f"{fileGlobal}.csv")  # Export the Global dataframe into a .csv
     # print(f"{fileGlobal}.csv File Created !")

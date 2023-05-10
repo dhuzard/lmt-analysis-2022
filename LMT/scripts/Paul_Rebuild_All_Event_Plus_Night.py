@@ -12,6 +12,7 @@ import os
 import sys
 import traceback
 
+os.chdir("/..")
 from lmtanalysis.Util import *
 from lmtanalysis.Animal import *
 from lmtanalysis.Event import *
