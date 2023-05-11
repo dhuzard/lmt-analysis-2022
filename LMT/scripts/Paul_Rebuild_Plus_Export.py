@@ -1,6 +1,7 @@
+import sys
+sys.path.insert(1, "../")
 
 import sqlite3
-import sys
 import os
 from time import *
 import datetime
@@ -447,7 +448,7 @@ def computeBehaviorsData(behavior, show=False):
 # End of export
 # --------------------------------------------------------------------------------------------------------
 
-def rebuild():
+def rebuild(file):
 
     global buildEvents
     global confirmEvents
@@ -516,7 +517,7 @@ def rebuild():
 
     print("*** ALL JOBS DONE ***")
 
-def create_csv(count:int):
+def create_csv(count:int, file):
 
     filenames = [os.path.basename(files[x]) for x in range(0, len(files))]
     print(filenames)
@@ -850,30 +851,30 @@ def create_csv(count:int):
 
     # Say it's done !
     print("!!! End of analysis !!!")
-
-if __name__ == '__main__':
-    # global buildEvents
-    # global confirmEvents
-    # global night
-    # global startNightInput
-    # global endNightInput
-    # global files
-    # global timeBinsDuration
-    # global useNights
-
-    files = getFilesToProcess()
-
-    buildEvents = input("Do you want to rebuild the Events ?")
-    confirmEvents = input("Do you confirm ? ")
-    night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
-    startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
-    endNightInput = input("Time of the end of the night (hh:mm:ss):")
-    timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
-    useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
-
-    count = 0
-
-    for file in files:
-        rebuild()
-        create_csv(count)
-        count += 1
+#
+# if __name__ == '__main__':
+#     # global buildEvents
+#     # global confirmEvents
+#     # global night
+#     # global startNightInput
+#     # global endNightInput
+#     # global files
+#     # global timeBinsDuration
+#     # global useNights
+#
+#     files = getFilesToProcess()
+#
+#     buildEvents = input("Do you want to rebuild the Events ?")
+#     confirmEvents = input("Do you confirm ? ")
+#     night = input("Do you want to rebuild the night ? Yes (Y) or No (N) :")
+#     startNightInput = input("Time of the beginning of the night (hh:mm:ss):")
+#     endNightInput = input("Time of the end of the night (hh:mm:ss):")
+#     timeBinsDuration = int(input("Enter the TIMEBIN for ALL the files (1min =  1800 frames / 1h = 108000 frames): "))
+#     useNights = input("Do you want to use the Nights from the .sqlite files to computes the data ? ('Yes'/'No'): ")
+#
+#     count = 0
+#
+#     for file in files:
+#         rebuild()
+#         create_csv(count)
+#         count += 1

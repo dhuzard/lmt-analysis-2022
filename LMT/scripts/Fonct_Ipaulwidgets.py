@@ -31,7 +31,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('max_colwidth', None)
 
 # Read csv
-path = getCsvFileToProcess()
+# path = getCsvFileToProcess()
 df = pd.read_csv(path)
 
 # Carte de remplacement
