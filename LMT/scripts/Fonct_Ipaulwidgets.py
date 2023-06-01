@@ -24,57 +24,24 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from tabulate import tabulate
 import warnings
-
 warnings.filterwarnings('ignore')
 
 pd.set_option('display.max_columns', None)
 pd.set_option('max_colwidth', None)
 
 # Read csv
-# path = getCsvFileToProcess()
+path = getCsvFileToProcess()
 df = pd.read_csv(path)
 
-# Carte de remplacement
-remplacement = {'weekend1': '(1)weekend1', '1-3NaCl': '(2)3NaCl', 
-                '2-1Amphet': '(3)1Amphet', '3-1Amphet': '(4)1Amphet', 
-                '4-1Amphet': '(5)1Amphet', 'weekend2': '(6)weekend2', 
-                '5-3Amphet': '(7)3Amphet', '6-3Amphet': '(8)3Amphet', 
+# Remplacement des injections
+remplacement = {'weekend1': '(1)weekend1', '1-3NaCl': '(2)3NaCl',
+                '2-1Amphet': '(3)1Amphet', '3-1Amphet': '(4)1Amphet',
+                '4-1Amphet': '(5)1Amphet', 'weekend2': '(6)weekend2',
+                '5-3Amphet': '(7)3Amphet', '6-3Amphet': '(8)3Amphet',
                 '7-3Amphet': '(9)3Amphet'}
 
 # Utilisation de la méthode "replace" pour remplacer les valeurs
 df['Injection'] = df['Injection'].replace(remplacement)
-
-# Organisation boutons Ipywidgets
-style = {'description_width': '100px'}
-layout = widgets.Layout(width='300px', 
-                        height='25px')
-
-# Boutons 'reset'
-plot_reset = widgets.Button(description='Reset')
-stat_reset = widgets.Button(description='Reset')
-
-# Tab1 : Selection of behaviors to analyze
-animalnumber = widgets.SelectMultiple(options=['Isolated beh. (eg:Rearing, SAP,...)', 'Beh. involving 2 mice', 
-                                               'Beh. involving 3 mice', 'Beh. involving 4 mice'], 
-                                      rows=4, 
-                                      description='Behaviors to analyze', 
-                                      disabled=False)
-
-# Selection du type d'analyse "Number" ou "Duration"
-data_type=["Number of events", "Event duration"]
-choicetype = widgets.Dropdown(options=data_type, 
-                              value=data_type[0], 
-                              description='Type', 
-                              disable=False)
-
-# Selection pour les Repeated Measures de Dabest
-dabest_type = ["1", "2", "3"]
-statstype = widgets.Dropdown(options=dabest_type, 
-                             value=dabest_type[0], 
-                             description='Répétition (en jours)', 
-                             disabled=False, 
-                             layout =widgets.Layout(width='300px', height='25px'), 
-                             style = {'description_width': '200px'})
 
 # Définition de variables
 date = df["Date"].unique()
@@ -82,64 +49,105 @@ injection = df["Injection"].unique()
 cage = df["Cage"].unique()
 night_phase = df["Night-Phase"].unique()
 event = df["name"].unique()
-stats = ['Mixed Model', 'Non-Mixed Model']
+
+# Organisation boutons Ipywidgets
+style = {'description_width': '100px'}
+layout = widgets.Layout(width='300px',
+                        height='25px')
+# Boutons 'reset'
+plot_reset = widgets.Button(description='Reset')
+stat_reset = widgets.Button(description='Reset')
+
+# Tab1 : Selection of behaviors to analyze
+animalnumber = widgets.SelectMultiple(options=['Isolated beh. (eg:Rearing, SAP,...)', 'Beh. involving 2 mice',
+                                               'Beh. involving 3 mice', 'Beh. involving 4 mice'],
+                                      rows=4,
+                                      description='Behaviors to analyze',
+                                      style={'description_width': '120px'},
+                                      layout=widgets.Layout(width='330px'),
+                                      disabled=False)
+
+# Selection du type d'analyse "Number" ou "Duration"
+data_type=["Number of events", "Event duration"]
+choicetype = widgets.Dropdown(options=data_type,
+                              value=data_type[0],
+                              description='Type',
+                              style={'description_width': '120px'},
+                              disable=False)
+
+# Selection pour les Repeated Measures de Dabest
+dabest_type = ["1", "2", "3"]
+statstype = widgets.Dropdown(options=dabest_type,
+                             value=dabest_type[0],
+                             description='Repetition (in days)',
+                             disabled=False,
+                             layout=widgets.Layout(width='300px', height='25px'),
+                             style={'description_width': '200px'})
 
 # Créations des widgets
 # drop_injection_plot = sélection du jour de l'injection pour les plots
-drop_injection_plot = widgets.SelectMultiple(options=injection, 
-                                             rows=5, 
-                                             description='Injection', 
+drop_injection_plot = widgets.SelectMultiple(options=injection,
+                                             rows=5,
+                                             description='Injection',
                                              disabled=False)
+
 # drop_cage_plot = sélection de la cage pour les plots
-drop_cage_plot = widgets.SelectMultiple(options=cage, 
-                                        rows=5, 
-                                        description='Cage', 
+drop_cage_plot = widgets.SelectMultiple(options=cage,
+                                        rows=5,
+                                        description='Cage',
                                         disabled=False)
+
 # drop_event = sélection du comportement pour les plots
-drop_event = widgets.Dropdown(options=event, 
-                              value=event[1], 
-                              description='Event:', 
+drop_event = widgets.Dropdown(options=event,
+                              value=event[1],
+                              description='Event:',
                               disabled=False)
+
 # drop_night_plot = sélection de la nuit pour les plots
-drop_night_plot = widgets.SelectMultiple(options=night_phase, 
-                                         rows=5, 
-                                         description='Night_Phase', 
+drop_night_plot = widgets.SelectMultiple(options=night_phase,
+                                         rows=5,
+                                         description='Night_Phase',
                                          disabled=False)
+
 # drop_stat = sélection du type de stats (pour l'instant que le Mixed-Model
-drop_stat = widgets.Dropdown(options=stats, 
-                             value=stats[0], 
-                             description='Statistic:', 
-                             style = style, 
+stats = ['Mixed Model', 'Non-Mixed Model']
+drop_stat = widgets.Dropdown(options=stats,
+                             value=stats[0],
+                             description='Statistic:',
+                             style=style,
                              disabled=False)
+
 # drop_injection_plot = sélection du jour de l'injection pour les stats
-drop_injection_stat = widgets.SelectMultiple(options=injection, 
-                                             rows=5, 
-                                             description='Injection', 
-                                             style = style, 
+drop_injection_stat = widgets.SelectMultiple(options=injection,
+                                             rows=5,
+                                             description='Injection',
+                                             style=style,
                                              disabled=False)
+
 # drop_cage_plot = sélection de la cage pour les stats
-drop_cage_stat = widgets.SelectMultiple(options=cage, 
-                                        rows=5, 
-                                        description='Cage', 
-                                        style = style, 
+drop_cage_stat = widgets.SelectMultiple(options=cage,
+                                        rows=5,
+                                        description='Cage',
+                                        style=style,
                                         disabled=False)
+
 # drop_night_plot = sélection de la nuit pour les stats
-drop_night_stat = widgets.SelectMultiple(options=night_phase, 
-                                         rows=5, 
-                                         description='Night_Phase', 
-                                         style = style, 
+drop_night_stat = widgets.SelectMultiple(options=night_phase,
+                                         rows=5,
+                                         description='Night_Phase',
+                                         style=style,
                                          disabled=False)
 
 # création widget nom_fichier
-nom_dossier = widgets.Text(placeholder='Type here', 
-                           description='Folder name:', 
-                           style = style, 
+nom_dossier = widgets.Text(placeholder='Type here',
+                           description='Folder name:',
+                           style=style,
                            disabled=False)
 
 # création du widget bouton
-statbutton = widgets.Button(description="Récupération des stats", 
-                            layout = layout, 
-                            style = style)
+statbutton = widgets.Button(description="Stats exportation",
+                            layout=layout,
+                            style=style)
 
 # Affectation de la fonction 'results_update_stats' au bouton 'statbutton'
 def get_plots_stats_button(statbutton):
@@ -149,26 +157,27 @@ def get_plots_stats_button(statbutton):
                                                             'cage': drop_cage_stat, 
                                                             'night_phase': drop_night_stat, 
                                                             'event': drop_event, 
-                                                            'choice_type':choicetype, 
-                                                            'stats_type':statstype})
+                                                            'choice_type': choicetype,
+                                                            'stats_type': statstype})
 
 # Associer la fonction on_button_click à l'événement de clic du bouton
 statbutton.on_click(get_plots_stats_button)
 
 # Association des widgets aux onglets
-box1 = HBox([plot_reset, 
-             drop_injection_plot, 
-             drop_cage_plot, 
-             drop_night_plot, 
+box1 = VBox([plot_reset,
+             drop_injection_plot,
+             drop_cage_plot,
+             drop_night_plot,
              drop_event])
-box2 = VBox([stat_reset, 
-             drop_stat, 
-             drop_injection_stat, 
-             drop_cage_stat, 
-             drop_night_stat, 
-             drop_event, 
-             statstype, 
-             nom_dossier, 
+
+box2 = VBox([stat_reset,
+             drop_stat,
+             drop_injection_stat,
+             drop_cage_stat,
+             drop_night_stat,
+             drop_event,
+             statstype,
+             nom_dossier,
              statbutton])
 
 # Création de l'onglet pour les widgets
@@ -185,15 +194,16 @@ tab1.set_title(2, 'Stats')
 
 # Liste des évènements existants dans les bases de données actuelles
 event_options = {'Isolated beh. (eg:Rearing, SAP,...)': ["Move isolated", "Rearing", "Rear isolated", "Stop isolated", "SAP"],
-                 'Beh. involving 2 mice': ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact", 
-                                           "Side by side Contact, opposite way", "Social approach", "Social escape", 
-                                           "Approach contact", "Approach rear", "Break contact", "Get away", 
+                 'Beh. involving 2 mice': ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact",
+                                           "Side by side Contact, opposite way", "Social approach", "Social escape",
+                                           "Approach contact", "Approach rear", "Break contact", "Get away",
                                            "FollowZone Isolated", "Train2", "Group2"],
                  'Beh. involving 3 mice': ["Group3"],
                  'Beh. involving 4 mice': ["Group4", "Nest3", "Nest4"]}
 
 # Mise à jour des évènements (drop_event) en fonction de la sélection du widget 'animalnumber'
-def update_event_options(*args):
+def update_event_options(change):
+
     selected_animalnumber = animalnumber.value
     selected_options = []
     for behavior in selected_animalnumber:
@@ -240,8 +250,7 @@ def update_options_plot(change):
                                  & set(night_options_plot))
 
 # Assigner la fonction update_options à l'événement "observe" de drop_injection_plot
-drop_injection_plot.observe(update_options_plot, 
-                            names='value')
+drop_injection_plot.observe(update_options_plot, names='value')
 
 def update_options_stat(change):
     # Filtrer les données du DataFrame en fonction des valeurs sélectionnées dans drop_injection_stat
@@ -264,22 +273,21 @@ def update_options_stat(change):
                                  & set(night_options_stats))
 
 # Assigner la fonction update_options à l'événement "observe" de drop_injection_stat
-drop_injection_stat.observe(update_options_stat, 
-                            names='value')
+drop_injection_stat.observe(update_options_stat, names='value')
 
 def update_temp_df(change):
     # Mise à jour de temp_df en fonction de la sélection actuelle des widgets
     global temp_df
-    temp_df = df[(df["Injection"].isin((drop_injection_plot.value))) 
-                 & (df["Cage"].isin((drop_cage_plot.value))) 
+    temp_df = df[(df["Injection"].isin(drop_injection_plot.value))
+                 & (df["Cage"].isin(drop_cage_plot.value))
                  & (df["name"] == drop_event.value) 
-                 & (df["Night-Phase"].isin((drop_night_plot.value)))]
+                 & (df["Night-Phase"].isin(drop_night_plot.value))]
 
 # Initialisation de temp_df en fonction de la sélection initiale des widgets
-temp_df = df[(df["Injection"].isin((drop_injection_plot.value))) 
-             & (df["Cage"].isin((drop_cage_plot.value))) 
-             & (df["name"] == drop_event.value) 
-             & (df["Night-Phase"].isin((drop_night_plot.value)))]
+temp_df = df[(df["Injection"].isin(drop_injection_plot.value))
+             & (df["Cage"].isin(drop_cage_plot.value))
+             & (df["name"] == drop_event.value)
+             & (df["Night-Phase"].isin(drop_night_plot.value))]
 
 # Observation des widgets pour mettre à jour temp_df lorsque la sélection est modifiée
 drop_injection_plot.observe(update_temp_df, 'value')
@@ -893,18 +901,18 @@ def results_update_stats(date, cage, night_phase, event, choice_type, stats_type
         else :
             return
 
-interactive_plot = widgets.interactive_output(update_dropdown, 
-                                              {'date': drop_injection_plot, 
-                                               'cage': drop_cage_plot, 
-                                               'night_phase': drop_night_plot, 
-                                               'event': drop_event})
+# interactive_plot = widgets.interactive_output(update_dropdown,
+#                                               {'date': drop_injection_plot,
+#                                                'cage': drop_cage_plot,
+#                                                'night_phase': drop_night_plot,
+#                                                'event': drop_event})
 # display(interactive_plot)
-
-interactive_stats = widgets.interactive_output(update_stats, 
-                                               {'date': drop_injection_stat, 
-                                                'cage': drop_cage_stat, 
-                                                'night_phase': drop_night_stat, 
-                                                'event': drop_event, 
-                                                'choice_type':choicetype, 
-                                                'stats_type':statstype})
+#
+# interactive_stats = widgets.interactive_output(update_stats,
+#                                                {'date': drop_injection_stat,
+#                                                 'cage': drop_cage_stat,
+#                                                 'night_phase': drop_night_stat,
+#                                                 'event': drop_event,
+#                                                 'choice_type':choicetype,
+#                                                 'stats_type':statstype})
 # display(interactive_stats)

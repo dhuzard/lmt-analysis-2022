@@ -33,13 +33,28 @@ def window():
     return folder
 
 def Merge():
+    """
+    Cette fonction permet de fusionner tous les fichiers CSV d'un dossier sélectionné en un seul fichier CSV.
 
-    # # Créer une fenêtre Tkinter
-    # root = tk.Tk()
-    # root.withdraw()
+    Instructions :
+    1. Une boîte de dialogue s'ouvre pour sélectionner un dossier contenant les fichiers CSV.
+    2. Vous devez spécifier le nom du nouveau dossier à créer où les fichiers seront déplacés.
+    3. Les fichiers CSV du dossier sélectionné seront déplacés vers le nouveau dossier.
+    4. Tous les fichiers CSV du nouveau dossier seront fusionnés en un seul fichier CSV.
+    5. Le nouveau fichier fusionné sera enregistré dans le nouveau dossier avec un nom spécifié.
+
+    Note :
+    - Assurez-vous d'avoir les modules os, shutil, glob et pandas importés.
+    - Si vous avez une colonne "Unnamed: 0" dans vos fichiers CSV, utilisez la ligne `df_append.pop("Unnamed: 0")`
+      pour la supprimer avant de fusionner les fichiers.
+    - Assurez-vous que votre code appelle la fonction window() pour afficher la boîte de dialogue de sélection
+      du dossier.
+
+    Exemple d'utilisation :
+    Merge()
+    """
 
     # # Ouvrir une boîte de dialogue pour sélectionner un dossier
-    # path = askdirectory(title="Choose a folder where your .csv files to merge are located")
     path = window()
 
     # spécifier le nom du nouveau dossier à créer
@@ -99,4 +114,4 @@ def Merge():
 
     print("##################################################################################")
     print("##################################################################################")
-    print("####################### File merged created with success #########################")
+    print("####################### Merged file created with success #########################")
