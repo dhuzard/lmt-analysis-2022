@@ -4,3 +4,12 @@ numpy
 matplotlib
 affine
 tabulate
+pydev
+pandas
+lxml
+networkx
+psutil
+openpyxl
+ipywidgets
+dabest
+statsmodel
