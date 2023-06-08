@@ -336,7 +336,7 @@ def update_dropdown(date, cage, night_phase, event):
                         x="GenoA", 
                         palette=colors, 
                         ax=ax2)
-            ax2.set_title("A barplot")
+            ax2.set_title("Barplot which shows the number of events")
             plt.show()
     elif choicetype.value == 'Event duration' :
         for date_val, cage_val, night_phase_val in itertools.product(date, cage, night_phase):
@@ -363,14 +363,14 @@ def update_dropdown(date, cage, night_phase, event):
                          style='RFidA', 
                          palette=colors, 
                          ax=ax1)
-            ax1.set_title(f'Numbers of {drop_event.value} per bin of each mouse')
-            ax1.set_ylabel(f'Numbers of {drop_event.value}')
+            ax1.set_title(f'Duration of {drop_event.value} per bin of each mouse')
+            ax1.set_ylabel(f'Duration of {drop_event.value}')
             sns.barplot(data=df_new, 
                         y='new_totallength', 
                         x="GenoA", 
                         palette=colors, 
                         ax=ax2)
-            ax2.set_title("A barplot")
+            ax2.set_title("Barplot which shows the duration of events")
             plt.show()
 
 ids = [i for i in df.GenoA.unique()]

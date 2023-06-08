@@ -782,15 +782,21 @@ class EventTimeLine:
     def getTotalLength(self):
         sum = 0
         for event in self.eventList:
-            sum+= event.duration()
+            sum += event.duration()
         return sum
 
-    def plotEventDurationDistributionHist(self , nbBin = 10 ):
-        data =[]
+    def getTotalDistance(self):
+        dist = 0
         for event in self.eventList:
-            data.append( event.duration() )
+            dist+=event.getDistance()
+        return dist
+
+    def plotEventDurationDistributionHist(self , nbBin = 10 ):
+        data = []
+        for event in self.eventList:
+            data.append(event.duration())
         #ax = plt.subplots()
-        plt.hist( data , nbBin )
+        plt.hist(data, nbBin)
         plt.xlabel( "Event duration" )
         plt.ylabel( "Number of events" )
         plt.title( "Hist. of duration of event {}".format( self.eventName ) )
@@ -815,10 +821,10 @@ class EventTimeLine:
         plt.bar( indexes,data,1 )
         #plt.bar( 3,11,1 )
 
-        plt.xlabel( "Events (sorted by duration)" )
-        plt.ylabel( "Duration" )
-        plt.title( "Duration of events" )
-        plt.figtext(.5,.85,"Number of events: {} (minDuration={}, maxDuration={})".format( len( data), minDuration,maxDuration ) ,fontsize=10,ha='center')
+        plt.xlabel("Events (sorted by duration)")
+        plt.ylabel("Duration")
+        plt.title("Duration of events")
+        plt.figtext(.5,.85,"Number of events: {} (minDuration={}, maxDuration={})".format(len(data), minDuration, maxDuration),fontsize=10,ha='center')
         plt.show()
 
     def plotTimeLine(self):
@@ -841,14 +847,14 @@ class EventTimeLine:
                 longestEvent = event
 
         fig, ax = plt.subplots()
-        ax.hlines( y, start, end, 'b', lw=4)
-        ax.text( 0 ,1.01,"TimeLine of {}".format( self.eventNameWithId ) ,fontsize=10,ha='left')
-        if ( longestEvent != None ):
-            ax.annotate('Longest event ({})'.format( longestEvent.duration()), xy=( longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
+        ax.hlines(y, start, end, 'b', lw=4)
+        ax.text(0,1.01,"TimeLine of {}".format( self.eventNameWithId ) ,fontsize=10,ha='left')
+        if (longestEvent != None ):
+            ax.annotate('Longest event ({})'.format(longestEvent.duration()), xy=(longestEvent.startFrame, 1), xytext=(longestEvent.startFrame, 0.95), arrowprops=dict(facecolor='black', shrink=0.05))
         #fig.show()
         plt.show()
 
-    def endRebuildEventTimeLine( self, connection , deleteExistingEvent = False ):
+    def endRebuildEventTimeLine(self, connection, deleteExistingEvent = False):
         '''
         Delete the old event timeline and save the new calculated one in the lmtanalysis
         '''

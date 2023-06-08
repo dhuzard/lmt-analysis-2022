@@ -34,6 +34,7 @@ def computeBehaviorsData(behavior, show=False):
     idD = behavior.idD
     totalLength = behavior.getTotalLength()
     meanLength = behavior.getMeanEventLength()
+    totalDistance = animal.getDistance()
     numberOfEvents = behavior.getNumberOfEvent()
     stdLength = behavior.getStandardDeviationEventLength()
 
@@ -61,6 +62,7 @@ def computeBehaviorsData(behavior, show=False):
         "totalLength": totalLength,
         "meanLength": meanLength,
         "medianLength": medianLength,
+        "totalDistance": totalDistance,
         "numberOfEvents": numberOfEvents,
         "stdLength": stdLength,
         "CI95_low": CI95[0],
@@ -197,7 +199,7 @@ if __name__ == '__main__':
         #Different events Depending on the number of animals in the Database:
         if animalNumber >= 1:
             behavioralEventsForOneAnimal = ["Move", "Move isolated", "Rearing", "Rear isolated",
-                                            "Stop isolated", "WallJump", "SAP", "Huddling", "WaterPoint"]
+                                            "Stop isolated", "WallJump", "SAP", "Huddling", "WaterPoint", "Distance"]
             print("The behaviors extracted are:\n", behavioralEventsForOneAnimal)
         if animalNumber >= 2:
             behavioralEventsForTwoAnimals = ["Contact", "Oral-oral Contact", "Oral-genital Contact", "Side by side Contact",
@@ -238,6 +240,7 @@ if __name__ == '__main__':
             "totalLength": None,
             "meanLength": None,
             "medianLength": None,
+            "totalDistance": None,
             "numberOfEvents": None,
             "stdLength": None,
             "CI95_low": None,

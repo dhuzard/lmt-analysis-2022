@@ -434,31 +434,31 @@ class Animal():
         return distanceList
 
 
-    def getDistance(self , tmin=0, tmax= None ):
+    def getDistance(self, tmin=0, tmax=None):
         '''
         Returns the distance traveled by the animal (in cm)
         '''
-        print("Compute total distance min:{} max:{} ".format( tmin , tmax ))
+        print("Compute total distance min:{} max:{} ".format(tmin, tmax))
 
 
         '''
-        keyList = list( self.detectionDictionnary.keys() )
+        keyList = list(self.detectionDictionnary.keys())
         if not alreadySorted:
             keyList = sorted(self.detectionDictionnary.keys())
         '''
-        if ( tmax==None ):
+        if (tmax==None):
             tmax= self.getMaxDetectionT()
 
         totalDistance = 0
-        for t in range( tmin , tmax ):
+        for t in range(tmin , tmax):
         #for key in keyList:
             '''
             if ( key <= tmin or key >= tmax ):
                 continue
             '''
 
-            a = self.detectionDictionnary.get( t )
-            b = self.detectionDictionnary.get( t+1 )
+            a = self.detectionDictionnary.get(t)
+            b = self.detectionDictionnary.get(t+1)
 
             if b==None or a==None:
                 continue
